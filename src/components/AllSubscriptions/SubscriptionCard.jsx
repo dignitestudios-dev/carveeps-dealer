@@ -1,7 +1,7 @@
 import React from "react";
 import { GoDotFill } from "react-icons/go";
 import { SiToyota } from "react-icons/si";
-
+//
 const SubscriptionCard = () => {
   return (
     <div className="bg-white w-[447px] rounded-[18px] p-8 flex flex-col justify-center gap-6 h-[648px]">
