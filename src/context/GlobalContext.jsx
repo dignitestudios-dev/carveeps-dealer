@@ -14,7 +14,7 @@ const GlobalContextProvider = ({ children }) => {
   const { pathname } = useLocation();
 
   const [reports, setReports] = useState(false);
-  const baseUrl = "https://dev.api.carveeps.com";
+  const baseUrl = "https://api.carveeps.com";
 
   // From plan creation context:
 
