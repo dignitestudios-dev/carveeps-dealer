@@ -42,7 +42,7 @@ const SubscriptionBoughtCharts = () => {
           `${baseUrl}/dealership/reports/bought/salesPersonGraph`,
           {
             filter: filter2,
-            salesPersonIds: selectedPersons,
+            salesPerson: selectedPersons,
           },
           { headers }
         )
@@ -68,7 +68,7 @@ const SubscriptionBoughtCharts = () => {
           `${baseUrl}/dealership/reports/bought/subscriptionPlanGraph`,
           {
             filter: filter1,
-            subscriptionPlanIds: selectedPlans,
+            subscriptionPlan: selectedPlans,
           },
           { headers }
         )
@@ -83,11 +83,11 @@ const SubscriptionBoughtCharts = () => {
     }
   };
 
-  const handlePlansChange = (event, planId) => {
+  const handlePlansChange = (event, plan) => {
     if (event.target.checked) {
-      setSelectedPlans((prev) => [...prev, planId]);
+      setSelectedPlans((prev) => [...prev, plan]);
     } else {
-      setSelectedPlans(selectedPlans.filter((id) => id !== planId));
+      setSelectedPlans(selectedPlans.filter((p) => p?._id !== plan?._id));
     }
   };
 
@@ -99,11 +99,11 @@ const SubscriptionBoughtCharts = () => {
     if (selectedPersons.length > 0) getPersonData();
   }, [selectedPersons, filter2]);
 
-  const handlePersonChange = (event, personId) => {
+  const handlePersonChange = (event, person) => {
     if (event.target.checked) {
-      setSelectedPersons((prev) => [...prev, personId]);
+      setSelectedPersons((prev) => [...prev, person]);
     } else {
-      setSelectedPersons(selectedPersons.filter((id) => id !== personId));
+      setSelectedPersons(selectedPersons.filter((p) => p?._id !== person?._id));
     }
   };
 
@@ -161,8 +161,15 @@ const SubscriptionBoughtCharts = () => {
                       >
                         <input
                           type="checkbox"
-                          checked={selectedPlans?.includes(plan?._id)}
-                          onChange={(e) => handlePlansChange(e, plan?._id)}
+                          checked={selectedPlans.some(
+                            (selectedPlan) => selectedPlan._id === plan._id
+                          )}
+                          onChange={(e) =>
+                            handlePlansChange(e, {
+                              _id: plan?._id,
+                              name: plan?.name,
+                            })
+                          }
                           className="w-2.5 h-2.5 accent-red-500"
                         />
                         <label className="font-medium text-[11px]">
@@ -276,8 +283,16 @@ const SubscriptionBoughtCharts = () => {
                       >
                         <input
                           type="checkbox"
-                          checked={selectedPersons?.includes(member?._id)}
-                          onChange={(e) => handlePersonChange(e, member?._id)}
+                          checked={selectedPersons.some(
+                            (selectedPerson) =>
+                              selectedPerson._id === member._id
+                          )}
+                          onChange={(e) =>
+                            handlePersonChange(e, {
+                              _id: member?._id,
+                              name: member?.name,
+                            })
+                          }
                           className="w-2.5 h-2.5 accent-red-500"
                         />
                         <label className="font-medium text-[11px]">
