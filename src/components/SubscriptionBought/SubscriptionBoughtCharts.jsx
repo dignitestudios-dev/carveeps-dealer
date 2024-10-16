@@ -316,7 +316,7 @@ const SubscriptionBoughtCharts = () => {
                   )}
                 </button>
                 {openDropdown2 && (
-                  <div className="bg-white w-[92px] h-auto py-1 custom-shadow absolute flex flex-col items-start">
+                  <div className="bg-white w-[92px] h-auto py-1 z-30 custom-shadow absolute flex flex-col items-start">
                     {[
                       "thisYear",
                       "last7Days",
