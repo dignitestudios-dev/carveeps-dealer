@@ -168,24 +168,35 @@ const DashboardGraph = () => {
             </button>
             {openDropdown3 && (
               <div className="bg-white w-[124px] max-h-[200px] overflow-y-scroll modal-scroll custom-shadow absolute flex flex-col items-start gap-3 px-3 py-2">
+                <button
+                  onClick={() => {
+                    setSelectedMonth(null);
+                    toggleDropdown3();
+                  }}
+                  className={`font-medium text-[11px] w-full px-3 py-1 text-start hover:bg-gray-100 `}
+                >
+                  Select Month
+                </button>
                 {monthsArray?.map((month, key) => {
                   return (
-                    <div key={key} class="flex items-center px-2">
-                      <input
-                        id="checked-checkbox"
-                        checked={selectedMonth?.name == month}
-                        type="checkbox"
-                        onChange={(e) =>
-                          setSelectedMonth({ name: month, number: key + 1 })
-                        }
-                        className="w-3 h-3 text-[#FF204E] rounded dark:focus:[#FF204E] accent-[#FF204E]"
-                      />
-                      <label
-                        for="checked-checkbox"
-                        class="ms-2 font-medium text-[11px] text-gray-900 dark:text-gray-300"
+                    <div
+                      key={key}
+                      className="w-full flex flex-col items-start gap-3 justify-start"
+                    >
+                      <button
+                        key={key}
+                        onClick={() => {
+                          setSelectedMonth({ name: month, number: key + 1 });
+                          toggleDropdown3();
+                        }}
+                        className={`font-medium text-[11px] w-full px-3 py-1 text-start hover:bg-gray-100 ${
+                          selectedMonth?.name == month
+                            ? "bg-gray-100"
+                            : "bg-transparent"
+                        }`}
                       >
                         {month}
-                      </label>
+                      </button>
                     </div>
                   );
                 })}
@@ -212,8 +223,11 @@ const DashboardGraph = () => {
                       key={key}
                       onClick={() => {
                         setSelectedYear(year);
+                        toggleDropdown2();
                       }}
-                      className="font-medium text-[11px] w-full px-3 py-1 text-start hover:bg-gray-100"
+                      className={`font-medium text-[11px] w-full px-3 py-1 text-start hover:bg-gray-100   ${
+                        selectedYear == year ? "bg-gray-100" : "bg-transparent"
+                      }`}
                     >
                       {year}
                     </button>
