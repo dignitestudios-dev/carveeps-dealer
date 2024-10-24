@@ -205,7 +205,7 @@ const DashboardGraph = () => {
           </div>
           <div>
             <button
-              className="w-[86px] z-[100000000] py-2 flex items-center capitalize justify-center gap-[2px] bg-[#EDEDED] rounded-full text-[11px] font-medium"
+              className="w-[86px] z-[1000] py-2 flex items-center capitalize justify-center gap-[2px] bg-[#EDEDED] rounded-full text-[11px] font-medium"
               onClick={toggleDropdown2}
             >
               {selectedYear}
