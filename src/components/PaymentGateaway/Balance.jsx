@@ -9,7 +9,7 @@ import { GlobalContext } from "../../context/GlobalContext";
 import Cookies from "js-cookie";
 import axios from "axios";
 
-const Balance = () => {
+const Balance = ({ update, setUpdate }) => {
   const [showModal, setShowModal] = useState(false);
   const [showBankDetailsModal, setShowBankDetailsModal] = useState(false);
 
@@ -23,7 +23,6 @@ const Balance = () => {
   const [data, setData] = useState([]);
   const { baseUrl, navigate, setError } = useContext(GlobalContext);
   const [dataLoading, setDataLoading] = useState(false);
-
   const getData = () => {
     const token = Cookies.get("token");
 
@@ -57,7 +56,7 @@ const Balance = () => {
 
   useEffect(() => {
     getData();
-  }, []);
+  }, [update]);
 
   useEffect(() => {
     Cookies.set("accountNumber", data?.accountNumber);

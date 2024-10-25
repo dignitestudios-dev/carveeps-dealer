@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import List from "./List";
 import WithdrawModal from "./WithdrawModal";
 
-const TransactionHistory = () => {
+const TransactionHistory = ({ setUpdate }) => {
   const [showModal, setShowModal] = useState(false);
   const handleShowModal = () => {
     setShowModal(!showModal);
@@ -28,6 +28,7 @@ const TransactionHistory = () => {
           showModal={showModal}
           onclick={handleShowModal}
           setShowModal={setShowModal}
+          setUpdate={setUpdate}
         />
       </div>
       <List />

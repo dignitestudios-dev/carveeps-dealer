@@ -8,10 +8,12 @@ const PaymentGateaway = () => {
   const { showModal, setShowModal, handleShowModal, isAuthenticated } =
     useContext(GlobalContext);
 
+  const [update, setUpdate] = useState(false);
+
   return isAuthenticated ? (
     <div>
-      <Balance />
-      <TransactionHistory />
+      <Balance update={update} setUpdate={setUpdate} />
+      <TransactionHistory setUpdate={setUpdate} />
     </div>
   ) : (
     <div>

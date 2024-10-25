@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 import axios from "axios";
 import BtnLoader from "../Global/BtnLoader";
 
-const WithdrawModal = ({ showModal, setShowModal, onclick }) => {
+const WithdrawModal = ({ showModal, setShowModal, onclick, setUpdate }) => {
   const [successModal, setSuccessModal] = useState(false);
 
   const handleSuccessModal = () => {
@@ -43,6 +43,7 @@ const WithdrawModal = ({ showModal, setShowModal, onclick }) => {
             (response) => {
               console.log(response?.data);
               setResp(response?.data?.data);
+              setUpdate((prev) => !prev);
               handleSuccessModal();
               setLoading(false);
             },
@@ -133,7 +134,7 @@ const WithdrawModal = ({ showModal, setShowModal, onclick }) => {
       )}
       {successModal && (
         <div className="w-screen h-screen fixed top-0 bottom-0 right-0 left-0 flex items-center justify-center bg-[rgba(0,0,0,0.4)] z-40">
-          <div className="bg-white rounded-[18px] px-6 pt-6 pb-10 lg:w-[456px] w-full h-[453px] flex flex-col items-center justify-center gap-3 text-center">
+          <div className="bg-white rounded-[18px] px-6 pt-6 pb-10 lg:w-[456px] w-full h-[523px] flex flex-col items-center justify-center gap-3 text-center">
             <div className="w-full">
               <button
                 className="w-6 h-6 rounded-full flex items-center justify-center p-1 bg-[#F7F7F7] float-end"
@@ -146,10 +147,10 @@ const WithdrawModal = ({ showModal, setShowModal, onclick }) => {
             <div className="w-[70px] h-[70px] rounded-full flex items-center justify-center bg-[#3FB743] p-4">
               <FaCheck className="text-white w-full h-full" />
             </div>
-            <h1 className="text-2xl font-bold">Withdraw Successfully</h1>
+            <h1 className="text-2xl font-bold">Withdrawn Successfully</h1>
             <div>
               <p className="text-[13px] font-medium text-[#5C5C5C]">
-                Amount Withdraw
+                Amount Withdrawn
               </p>
               <p className="text-2xl font-semibold">USD {resp?.amount}</p>
             </div>
@@ -173,11 +174,16 @@ const WithdrawModal = ({ showModal, setShowModal, onclick }) => {
             </div>
             <div>
               <p className="text-[13px] font-medium text-[#5C5C5C]">
-                Description
+                Bank Name
+              </p>
+              <p className="text-[13px] font-semibold">{resp?.bankName}</p>
+            </div>
+            <div>
+              <p className="text-[13px] font-medium text-[#5C5C5C]">
+                Last 4 digits
               </p>
               <p className="text-[13px] font-semibold">
-                direct to local bank account <br />
-                {resp?.bankName}
+                ****-****-****-{resp?.last4}
               </p>
             </div>
           </div>
