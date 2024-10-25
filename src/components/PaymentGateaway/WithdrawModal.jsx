@@ -41,8 +41,8 @@ const WithdrawModal = ({ showModal, setShowModal, onclick, setUpdate }) => {
           )
           .then(
             (response) => {
-              console.log(response?.data);
               setResp(response?.data?.data);
+              setAmount("");
               setUpdate((prev) => !prev);
               handleSuccessModal();
               setLoading(false);
