@@ -112,7 +112,7 @@ const DashboardGraph = () => {
       setPersonDataLoading(true);
       axios
         .get(
-          selectedMonth == null
+          selectedMonth == "Select Month"
             ? `${baseUrl}/dealership/dashboard/graph?year=${selectedYear}`
             : `${baseUrl}/dealership/dashboard/graph?year=${selectedYear}&month=${selectedMonth?.number}`,
           {
@@ -159,7 +159,7 @@ const DashboardGraph = () => {
               className="w-[124px]  py-2 flex items-center justify-center gap-[2px] bg-[#EDEDED] rounded-full text-[11px] font-medium"
               onClick={toggleDropdown3}
             >
-              Select Month{" "}
+              {selectedMonth}{" "}
               {openDropdown3 ? (
                 <IoMdArrowDropdown className="text-base" />
               ) : (
@@ -170,7 +170,7 @@ const DashboardGraph = () => {
               <div className="bg-white w-[124px] max-h-[200px] overflow-y-scroll modal-scroll custom-shadow absolute flex flex-col items-start gap-3 px-3 py-2">
                 <button
                   onClick={() => {
-                    setSelectedMonth(null);
+                    setSelectedMonth("Select Month");
                     toggleDropdown3();
                   }}
                   className={`font-medium text-[11px] w-full px-3 py-1 text-start hover:bg-gray-100 `}
