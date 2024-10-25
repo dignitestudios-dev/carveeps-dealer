@@ -61,6 +61,15 @@ const WithdrawModal = ({ showModal, setShowModal, onclick }) => {
     }
   }
 
+  function convertIsoToMMDDYYYY(isoString) {
+    const date = new Date(isoString);
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const year = date.getFullYear();
+
+    return `${month}-${day}-${year}`;
+  }
+
   return (
     <>
       {showModal && (
@@ -124,7 +133,7 @@ const WithdrawModal = ({ showModal, setShowModal, onclick }) => {
       )}
       {successModal && (
         <div className="w-screen h-screen fixed top-0 bottom-0 right-0 left-0 flex items-center justify-center bg-[rgba(0,0,0,0.4)] z-40">
-          <div className="bg-white rounded-[18px] px-6 pt-6 pb-10 lg:w-[486px] w-full h-[503px] flex flex-col items-center justify-center gap-3 text-center">
+          <div className="bg-white rounded-[18px] px-6 pt-6 pb-10 lg:w-[456px] w-full h-[453px] flex flex-col items-center justify-center gap-3 text-center">
             <div className="w-full">
               <button
                 className="w-6 h-6 rounded-full flex items-center justify-center p-1 bg-[#F7F7F7] float-end"
@@ -142,21 +151,25 @@ const WithdrawModal = ({ showModal, setShowModal, onclick }) => {
               <p className="text-[13px] font-medium text-[#5C5C5C]">
                 Amount Withdraw
               </p>
-              <p className="text-2xl font-semibold">USD 500</p>
+              <p className="text-2xl font-semibold">USD {resp?.amount}</p>
             </div>
             <div>
               <p className="text-[13px] font-medium text-[#5C5C5C]">
                 Reference ID
               </p>
-              <p className="text-[13px] font-semibold">90857632467829</p>
+              <p className="text-[13px] font-semibold">{resp?._id}</p>
             </div>
             <div>
               <p className="text-[13px] font-medium text-[#5C5C5C]">Name</p>
-              <p className="text-[13px] font-semibold">John Smith</p>
+              <p className="text-[13px] font-semibold">
+                {resp?.withdrawerName}
+              </p>
             </div>
             <div>
               <p className="text-[13px] font-medium text-[#5C5C5C]">Date</p>
-              <p className="text-[13px] font-semibold">Fri, 16 Feb</p>
+              <p className="text-[13px] font-semibold">
+                {convertIsoToMMDDYYYY(resp?.createdAt)}
+              </p>
             </div>
             <div>
               <p className="text-[13px] font-medium text-[#5C5C5C]">
@@ -164,7 +177,7 @@ const WithdrawModal = ({ showModal, setShowModal, onclick }) => {
               </p>
               <p className="text-[13px] font-semibold">
                 direct to local bank account <br />
-                (**** **** ****499)
+                {resp?.bankName}
               </p>
             </div>
           </div>
