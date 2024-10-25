@@ -89,7 +89,7 @@ const DashboardGraph = () => {
   const { team, setError, baseUrl, setNewUpdate } = useContext(GlobalContext);
 
   const currentYear = new Date().getFullYear();
-  const [selectedMonth, setSelectedMonth] = useState(null);
+  const [selectedMonth, setSelectedMonth] = useState("Select Month");
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const getYearsArray = () => {
     const startYear = 2024;
