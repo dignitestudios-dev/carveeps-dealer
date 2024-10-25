@@ -159,7 +159,9 @@ const DashboardGraph = () => {
               className="w-[124px]  py-2 flex items-center justify-center gap-[2px] bg-[#EDEDED] rounded-full text-[11px] font-medium"
               onClick={toggleDropdown3}
             >
-              {selectedMonth}{" "}
+              {selectedMonth == "Select Month"
+                ? selectedMonth
+                : selectedMonth?.name}{" "}
               {openDropdown3 ? (
                 <IoMdArrowDropdown className="text-base" />
               ) : (
