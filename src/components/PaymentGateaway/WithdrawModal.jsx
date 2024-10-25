@@ -42,7 +42,7 @@ const WithdrawModal = ({ showModal, setShowModal, onclick }) => {
           .then(
             (response) => {
               console.log(response?.data);
-              setResp(resp?.data?.data);
+              setResp(response?.data?.data);
               handleSuccessModal();
               setLoading(false);
             },
