@@ -61,7 +61,8 @@ const PreviousSubscriptions = () => {
     getPreviousSubscriptions();
   }, [filter]);
   const formatDateFromISOString = (isoString) => {
-    const date = new Date(isoString);
+    const splittedString = String(isoString).split("T")[0];
+    const date = new Date(splittedString);
     const options = { year: "numeric", month: "short", day: "2-digit" };
     return date.toLocaleDateString("en-US", options);
   };
