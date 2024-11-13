@@ -10,7 +10,7 @@ const SubscriberProfile = () => {
       <img
         src={tempData?.user?.vehicle?.image}
         alt=""
-        className="rounded-xl h-[204px] w-[246px]"
+        className="rounded-xl object-contain bg-gray-100 h-[204px] w-[246px]"
       />
       <div className="flex flex-col justify-end lg:flex-row gap-6">
         <div className="h-full flex flex-col items-start justify-between gap-4 lg:gap-8 lg:w-[465px]">
