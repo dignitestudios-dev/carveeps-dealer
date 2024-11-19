@@ -8,6 +8,7 @@ import PlanCreationContextProvider, {
   PlanCreationContext,
 } from "./context/PlanCreationContext.jsx";
 
+//
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker
     .register("/firebase-messaging-sw.js")
