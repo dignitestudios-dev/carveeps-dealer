@@ -29,8 +29,8 @@ const SubscriptionBoughtCharts = () => {
   const [planDataLoading, setPlanDataLoading] = useState(false);
   const [personData, setPersonData] = useState([]);
   const [personDataLoading, setPersonDataLoading] = useState(false);
-  const [filter1, setFilter1] = useState("thisYear");
-  const [filter2, setFilter2] = useState("thisYear");
+  const [filter1, setFilter1] = useState("This Year");
+  const [filter2, setFilter2] = useState("This Year");
 
   const getPersonData = () => {
     const token = Cookies.get("token");
