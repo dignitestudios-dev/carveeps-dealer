@@ -41,7 +41,14 @@ const SubscriptionBoughtCharts = () => {
         .post(
           `${baseUrl}/dealership/reports/bought/salesPersonGraph`,
           {
-            filter: filter2,
+            filter:
+              filter2 == "This Year"
+                ? "thisYear"
+                : filter2 == "Last 7 Days"
+                ? "last7Days"
+                : filter2 == "This Week"
+                ? "weekly"
+                : filter2 == "This Month" && "monthly",
             salesPerson: selectedPersons,
           },
           { headers }
@@ -67,7 +74,14 @@ const SubscriptionBoughtCharts = () => {
         .post(
           `${baseUrl}/dealership/reports/bought/subscriptionPlanGraph`,
           {
-            filter: filter1,
+            filter:
+              filter1 == "This Year"
+                ? "thisYear"
+                : filter1 == "Last 7 Days"
+                ? "last7Days"
+                : filter1 == "This Week"
+                ? "weekly"
+                : filter1 == "This Month" && "monthly",
             subscriptionPlan: selectedPlans,
           },
           { headers }
@@ -185,7 +199,7 @@ const SubscriptionBoughtCharts = () => {
                   className="w-[86px] py-2 flex items-center justify-center gap-[2px] bg-[#EDEDED] rounded-full text-[11px] font-medium"
                   onClick={() => setOpenDropdown1(!openDropdown1)}
                 >
-                  {filter1 === "thisYear" ? "This Year" : filter1}
+                  {filter1}
                   {openDropdown1 ? (
                     <IoMdArrowDropdown className="text-base" />
                   ) : (
@@ -195,11 +209,10 @@ const SubscriptionBoughtCharts = () => {
                 {openDropdown1 && (
                   <div className="bg-white w-[92px] z-30 h-auto py-1 custom-shadow absolute flex flex-col items-start">
                     {[
-                      "thisYear",
-                      "last7Days",
-                      "weekly",
-                      "monthly",
-                      "yearly",
+                      "This Year",
+                      "Last 7 Days",
+                      "This Week",
+                      "This Month",
                     ].map((filter) => (
                       <button
                         key={filter}
@@ -308,7 +321,7 @@ const SubscriptionBoughtCharts = () => {
                   className="w-[86px] py-2  z-30 flex items-center justify-center gap-[2px] bg-[#EDEDED] rounded-full text-[11px] font-medium"
                   onClick={() => setOpenDropdown2(!openDropdown2)}
                 >
-                  {filter2 === "thisYear" ? "This Year" : filter2}
+                  {filter2}
                   {openDropdown2 ? (
                     <IoMdArrowDropdown className="text-base" />
                   ) : (
@@ -318,11 +331,10 @@ const SubscriptionBoughtCharts = () => {
                 {openDropdown2 && (
                   <div className="bg-white w-[92px] h-auto py-1 z-30 custom-shadow absolute flex flex-col items-start">
                     {[
-                      "thisYear",
-                      "last7Days",
-                      "weekly",
-                      "monthly",
-                      "yearly",
+                      "This Year",
+                      "Last 7 Days",
+                      "This Week",
+                      "This Month",
                     ].map((filter) => (
                       <button
                         key={filter}
