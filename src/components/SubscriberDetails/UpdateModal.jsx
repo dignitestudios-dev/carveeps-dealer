@@ -7,6 +7,7 @@ import Cookies from "js-cookie";
 
 const UpdateModal = ({ showModal, setShowModal, onclick, service, update }) => {
   const formatDateFromEpoch = (epoch) => {
+    if (epoch == null) return "";
     const date = new Date(epoch);
     const options = { year: "numeric", month: "short", day: "2-digit" };
     return date.toLocaleDateString("en-US", options);

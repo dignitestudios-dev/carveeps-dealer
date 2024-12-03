@@ -52,11 +52,13 @@ const ServiceRecordsList = () => {
   };
 
   const formatDateFromEpoch = (epoch) => {
+    if (epoch == null) return "";
     const date = new Date(epoch);
     const options = { year: "numeric", month: "short", day: "2-digit" };
     return date.toLocaleDateString("en-US", options);
   };
   const formatDateFromISOString = (isoString) => {
+    if (isoString == null) return "";
     const splittedString = String(isoString).split("T")[0];
     const [year, month, day] = splittedString.split("-");
     const formattedString = `${month}-${day}-${year}`;
