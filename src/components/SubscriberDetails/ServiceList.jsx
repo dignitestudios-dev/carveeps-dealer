@@ -18,14 +18,14 @@ const ServiceList = ({ services, loading, update }) => {
     setShowModal((prev) => !prev);
   };
   const formatDateFromEpoch = (epoch) => {
-    if (epoch == null) return "";
+    if (epoch == null) return "N/A";
     const date = new Date(epoch);
     const options = { year: "numeric", month: "short", day: "2-digit" };
     return date.toLocaleDateString("en-US", options);
   };
 
   const formatDateFromISOString = (isoString) => {
-    if (isoString == null) return "";
+    if (isoString == null) return "N/A";
     const splittedString = String(isoString).split("T")[0];
     const [year, month, day] = splittedString.split("-");
     const formattedString = `${month}-${day}-${year}`;
@@ -34,6 +34,7 @@ const ServiceList = ({ services, loading, update }) => {
     return date.toLocaleDateString("en-US", options);
   };
   function formatTimestamp(timestamp) {
+    if (timestamp == null) return "N/A";
     // Create a new Date object from the timestamp
     const date = new Date(timestamp);
 

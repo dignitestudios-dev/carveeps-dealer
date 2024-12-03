@@ -7,8 +7,14 @@ import Cookies from "js-cookie";
 
 const UpdateModal = ({ showModal, setShowModal, onclick, service, update }) => {
   const formatDateFromEpoch = (epoch) => {
-    if (epoch == null) return "";
+    if (epoch == null) return "N/A";
     const date = new Date(epoch);
+    const options = { year: "numeric", month: "short", day: "2-digit" };
+    return date.toLocaleDateString("en-US", options);
+  };
+
+  const getDateToday = () => {
+    const date = new Date();
     const options = { year: "numeric", month: "short", day: "2-digit" };
     return date.toLocaleDateString("en-US", options);
   };
@@ -78,7 +84,7 @@ const UpdateModal = ({ showModal, setShowModal, onclick, service, update }) => {
               </div>
               <div className="col-span-1 flex flex-col items-start gap-1">
                 <label htmlFor="service" className="text-[13px] font-medium">
-                  Date
+                  Last Used
                 </label>
                 <input
                   type="text"

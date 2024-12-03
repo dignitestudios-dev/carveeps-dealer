@@ -8,7 +8,15 @@ import Cookies from "js-cookie";
 import { GlobalContext } from "../../context/GlobalContext";
 
 const SubscriptionBoughtCharts = () => {
-  const { team, plans, baseUrl, setError } = useContext(GlobalContext);
+  const {
+    team,
+    plans,
+    baseUrl,
+    setError,
+    setNewUpdate,
+    plansLoading,
+    teamLoading,
+  } = useContext(GlobalContext);
   const COLORS = [
     "#32ECEC",
     "#FF6680",
@@ -121,6 +129,10 @@ const SubscriptionBoughtCharts = () => {
     }
   };
 
+  useEffect(() => {
+    setNewUpdate((prev) => !prev);
+  }, []);
+
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       const { name, count } = payload[0].payload; // Get data for the hovered segment
@@ -168,29 +180,41 @@ const SubscriptionBoughtCharts = () => {
                 </button>
                 {openPlans && (
                   <div className="bg-white z-[10000] w-[152px] py-1.5 custom-shadow absolute right-1 max-h-[120px] flex flex-col items-start gap-2 overflow-y-scroll modal-scroll">
-                    {plans?.map((plan) => (
-                      <div
-                        key={plan?._id}
-                        className="px-3 flex items-center justify-start gap-1 w-full"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedPlans.some(
-                            (selectedPlan) => selectedPlan._id === plan._id
-                          )}
-                          onChange={(e) =>
-                            handlePlansChange(e, {
-                              _id: plan?._id,
-                              name: plan?.name,
-                            })
-                          }
-                          className="w-2.5 h-2.5 accent-red-500"
-                        />
-                        <label className="font-medium text-[11px]">
-                          {plan?.name}
-                        </label>
+                    {plansLoading ? (
+                      <div className="px-3 flex items-center justify-start gap-1 w-full">
+                        {" "}
+                        Loading...{" "}
                       </div>
-                    ))}
+                    ) : plans?.length > 0 ? (
+                      plans?.map((plan) => (
+                        <div
+                          key={plan?._id}
+                          className="px-3 flex items-center justify-start gap-1 w-full"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedPlans.some(
+                              (selectedPlan) => selectedPlan._id === plan._id
+                            )}
+                            onChange={(e) =>
+                              handlePlansChange(e, {
+                                _id: plan?._id,
+                                name: plan?.name,
+                              })
+                            }
+                            className="w-2.5 h-2.5 accent-red-500"
+                          />
+                          <label className="font-medium text-[11px]">
+                            {plan?.name}
+                          </label>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="px-3 flex items-center justify-start gap-1 w-full">
+                        {" "}
+                        No Plans Available{" "}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -289,30 +313,42 @@ const SubscriptionBoughtCharts = () => {
                 </button>
                 {openDropdown3 && (
                   <div className="bg-white z-[10000] w-[152px] py-1.5 custom-shadow absolute right-1 max-h-[120px] flex flex-col items-start gap-2 overflow-y-scroll modal-scroll">
-                    {team?.map((member) => (
-                      <div
-                        key={member?._id}
-                        className="px-3 flex items-center justify-start gap-1 w-full"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedPersons.some(
-                            (selectedPerson) =>
-                              selectedPerson._id === member._id
-                          )}
-                          onChange={(e) =>
-                            handlePersonChange(e, {
-                              _id: member?._id,
-                              name: member?.name,
-                            })
-                          }
-                          className="w-2.5 h-2.5 accent-red-500"
-                        />
-                        <label className="font-medium text-[11px]">
-                          {member?.name}
-                        </label>
+                    {teamLoading ? (
+                      <div className="px-3 flex items-center justify-start gap-1 w-full">
+                        {" "}
+                        Loading...{" "}
                       </div>
-                    ))}
+                    ) : team?.length > 0 ? (
+                      team?.map((member) => (
+                        <div
+                          key={member?._id}
+                          className="px-3 flex items-center justify-start gap-1 w-full"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedPersons.some(
+                              (selectedPerson) =>
+                                selectedPerson._id === member._id
+                            )}
+                            onChange={(e) =>
+                              handlePersonChange(e, {
+                                _id: member?._id,
+                                name: member?.name,
+                              })
+                            }
+                            className="w-2.5 h-2.5 accent-red-500"
+                          />
+                          <label className="font-medium text-[11px]">
+                            {member?.name}
+                          </label>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="px-3 flex items-center justify-start gap-1 w-full">
+                        {" "}
+                        No Sales Person Available{" "}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
