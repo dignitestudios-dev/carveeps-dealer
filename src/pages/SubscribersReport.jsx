@@ -19,6 +19,7 @@ import { NoData } from "../assets/export";
 import InfiniteScroll from "react-infinite-scroll-component";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { FaSpinner } from "react-icons/fa";
 
 const SubscribersReport = () => {
   const handleToggleDropdown = () => {
@@ -56,6 +57,15 @@ const SubscribersReport = () => {
   const [planFilter, setPlanFilter] = useState(null);
 
   const [type, setType] = useState(null);
+  function convertToDateFormat(date) {
+    // Extract the day, month, and year
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+    const year = date.getFullYear();
+
+    // Combine into dd-mm-yyyy format
+    return `${day}-${month}-${year}`;
+  }
 
   const getSubscribersReport = () => {
     const token = Cookies.get("token");
@@ -75,7 +85,9 @@ const SubscribersReport = () => {
               : type !== null
               ? `${baseUrl}/dealership/reports/subscriber?from=0&filter=${filter?.filter}&type=${type}`
               : `${baseUrl}/dealership/reports/subscriber?from=0&filter=${filter?.filter}`
-            : `${baseUrl}/dealership/reports/subscriber?from=0&particularDate=${filter?.date}`,
+            : `${baseUrl}/dealership/reports/subscriber?from=0&particularDate=${convertToDateFormat(
+                filter?.date
+              )}`,
           {
             headers,
           }
@@ -132,16 +144,24 @@ const SubscribersReport = () => {
     setIsOpen((prev) => !prev);
   };
 
+  const [downloading, setDownloading] = useState(false);
   const handleDownload = async (elementId, filename) => {
     const element = document.getElementById(elementId);
     if (!element) {
       console.error("Element not found");
       return;
     }
+    setDownloading(true);
 
     const padding = 3; // Padding at the top of each page in pixels
     element.style.backgroundColor = "#fff";
-    element.style.padding = `${padding}px`;
+    element.style.paddingTop = `${padding}px`;
+    element.style.paddingBottom = `${padding}px`;
+    // Temporarily hide elements with the class 'pdf-exclude'
+    const excludeElements = document.querySelectorAll(".pdf-exclude");
+    excludeElements.forEach((el) => {
+      el.style.display = "none";
+    });
 
     const canvas = await html2canvas(element);
     const imgData = canvas.toDataURL("image/png");
@@ -170,12 +190,18 @@ const SubscribersReport = () => {
 
     pdf.save(filename);
 
+    // Restore visibility of the hidden elements
+    excludeElements.forEach((el) => {
+      el.style.display = "";
+    });
     element.style.backgroundColor = "";
-    element.style.padding = "";
+    element.style.paddingTop = "";
+    element.style.paddingBottom = "";
+    setDownloading(false);
   };
   return (
-    <div className="w-full bg-white p-6 flex flex-col gap-y-4 rounded-[18px] ">
-      <div className="bg-white rounded-[18px] flex flex-col gap-y-6">
+    <div className="w-full bg-white  flex flex-col gap-y-4 rounded-[18px] ">
+      <div className="bg-white p-6 rounded-[18px] flex flex-col gap-y-6">
         <h1 className="text-[18px] font-bold">Subscribers Report</h1>
         <div className="w-[285px] md:w-[295px] h-[32px] bg-[#EDEDED] rounded-lg px-4 flex items-center justify-start">
           <FiSearch className="w-3.5 h-3.5 text-gray-500" />
@@ -249,160 +275,170 @@ const SubscribersReport = () => {
 
             <button
               onClick={() => handleDownload("subscriber-report", "Report")}
-              className="bg-black lg:block hidden text-white font-medium text-xs w-[97px] h-[32px] rounded-full"
+              className="bg-black lg:flex hidden text-white  items-center gap-1 justify-center font-medium text-xs w-auto px-3 h-[32px] rounded-full"
             >
               Download
+              {downloading && (
+                <FaSpinner className="text-white text-md animate-spin" />
+              )}
             </button>
           </div>
         </div>
       </div>
       <div
         id="subscriber-report"
-        className="w-full hidden lg:grid grid-cols-12 gap-4 py-4 border-b"
+        className="w-full h-auto px-6 flex flex-col justify-start items-start"
       >
-        <div>
-          <p className="text-xs font-medium text-[#7C7C7C]">
-            Subscription Date
-          </p>
-        </div>
-        <div className="col-span-2">
-          <p className="text-xs font-medium text-[#7C7C7C]">Subscriber Info</p>
-        </div>
-        <div className="col-span-3">
-          <p className="text-xs font-medium text-[#7C7C7C] text-center">VIN</p>
-        </div>
-        <div className="relative col-span-2 ">
-          <button
-            className="text-xs font-medium text-[#7C7C7C] flex items-center justify-end gap-1"
-            onClick={handleToggleDropdown}
-          >
-            Subscription Plan{" "}
-            {showDropDown ? (
-              <TiArrowSortedDown className="text-base" />
-            ) : (
-              <TiArrowSortedUp className="text-base" />
+        <div className="w-full hidden lg:grid grid-cols-12 gap-4 py-4 border-b">
+          <div>
+            <p className="text-xs font-medium text-[#7C7C7C]">
+              Subscription Date
+            </p>
+          </div>
+          <div className="col-span-2">
+            <p className="text-xs font-medium text-[#7C7C7C]">
+              Subscriber Info
+            </p>
+          </div>
+          <div className="col-span-3">
+            <p className="text-xs font-medium text-[#7C7C7C] text-center">
+              VIN
+            </p>
+          </div>
+          <div className="relative col-span-2 ">
+            <button
+              className="text-xs font-medium text-[#7C7C7C] flex items-center justify-end gap-1"
+              onClick={handleToggleDropdown}
+            >
+              Subscription Plan{" "}
+              {showDropDown ? (
+                <TiArrowSortedDown className="text-base pdf-exclude" />
+              ) : (
+                <TiArrowSortedUp className="text-base pdf-exclude" />
+              )}
+            </button>
+            {showDropDown && (
+              <div className="bg-white custom-shadow py-2 absolute">
+                {plans?.map((plan) => {
+                  return (
+                    <button
+                      key={plan?._id}
+                      onClick={() => {
+                        setPlanFilter(plan?._id);
+                        handleToggleDropdown();
+                      }}
+                      className="text-[11px] w-full py-1 hover:bg-gray-100 px-3 text-start"
+                    >
+                      {plan?.name}
+                    </button>
+                  );
+                })}
+              </div>
             )}
-          </button>
-          {showDropDown && (
-            <div className="bg-white custom-shadow py-2 absolute">
-              {plans?.map((plan) => {
-                return (
-                  <button
-                    key={plan?._id}
-                    onClick={() => {
-                      setPlanFilter(plan?._id);
-                      handleToggleDropdown();
-                    }}
-                    className="text-[11px] w-full py-1 hover:bg-gray-100 px-3 text-start"
-                  >
-                    {plan?.name}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-        <div className="text-center">
-          <p className="text-xs font-medium text-[#7C7C7C] text-center">
-            Amount
-          </p>
-        </div>
-        <div>
-          <p className="text-xs font-medium text-[#7C7C7C]">Duration</p>
-        </div>
-        <div className="relative">
-          <button
-            className="text-xs font-medium text-[#7C7C7C] flex items-center gap-1"
-            onClick={handleToggleDropdown2}
-          >
-            Subscriber Type{" "}
-            {showDropDown2 ? (
-              <TiArrowSortedDown className="text-base" />
-            ) : (
-              <TiArrowSortedUp className="text-base" />
-            )}
-          </button>
-          {showDropDown2 && (
-            <div className="bg-white custom-shadow py-2 absolute flex flex-col w-24">
-              <button
-                onClick={() => {
-                  setType("active");
-                  handleToggleDropdown2();
-                }}
-                className="text-[11px] py-1 hover:bg-gray-100 px-3 text-start"
-              >
-                Active
-              </button>
-              <button
-                onClick={() => {
-                  setType("inactive");
-                  handleToggleDropdown2();
-                }}
-                className="text-[11px] py-1 hover:bg-gray-100 px-3 text-start"
-              >
-                Inactive
-              </button>
-            </div>
-          )}
-        </div>
-        <div>
-          <p className="text-xs font-medium text-[#7C7C7C]"></p>
-        </div>
-      </div>
-      <>
-        <div id="scrollableDiv" className="w-full hidden lg:flex lg:flex-col">
-          {subscribersLoading ? (
-            arr?.map((item) => {
-              return (
-                <div
-                  key={item}
-                  className="w-full grid grid-cols-9 gap-8 py-4 border-b animate-pulse"
+          </div>
+          <div className="text-center">
+            <p className="text-xs font-medium text-[#7C7C7C] text-center">
+              Amount
+            </p>
+          </div>
+          <div>
+            <p className="text-xs font-medium text-[#7C7C7C]">Duration</p>
+          </div>
+          <div className="relative">
+            <button
+              className="text-xs font-medium text-[#7C7C7C] flex items-center gap-1"
+              onClick={handleToggleDropdown2}
+            >
+              Subscriber Type{" "}
+              {showDropDown2 ? (
+                <TiArrowSortedDown className="text-base pdf-exclude" />
+              ) : (
+                <TiArrowSortedUp className="text-base pdf-exclude" />
+              )}
+            </button>
+            {showDropDown2 && (
+              <div className="bg-white custom-shadow py-2 absolute flex flex-col w-24">
+                <button
+                  onClick={() => {
+                    setType("active");
+                    handleToggleDropdown2();
+                  }}
+                  className="text-[11px] py-1 hover:bg-gray-100 px-3 text-start"
                 >
-                  <div className="flex items-center">
-                    <div className="h-3 bg-gray-300 rounded w-16"></div>
-                  </div>
-                  <div className="col-span-2 flex items-center gap-2">
-                    <div className="w-6 h-6 bg-gray-300 rounded-full"></div>
-                    <div className="flex flex-col gap-1">
+                  Active
+                </button>
+                <button
+                  onClick={() => {
+                    setType("inactive");
+                    handleToggleDropdown2();
+                  }}
+                  className="text-[11px] py-1 hover:bg-gray-100 px-3 text-start"
+                >
+                  Inactive
+                </button>
+              </div>
+            )}
+          </div>
+          <div>
+            <p className="text-xs font-medium text-[#7C7C7C]"></p>
+          </div>
+        </div>
+        <>
+          <div id="scrollableDiv" className="w-full hidden lg:flex lg:flex-col">
+            {subscribersLoading ? (
+              arr?.map((item) => {
+                return (
+                  <div
+                    key={item}
+                    className="w-full grid grid-cols-9 gap-8 py-4 border-b animate-pulse"
+                  >
+                    <div className="flex items-center">
+                      <div className="h-3 bg-gray-300 rounded w-16"></div>
+                    </div>
+                    <div className="col-span-2 flex items-center gap-2">
+                      <div className="w-6 h-6 bg-gray-300 rounded-full"></div>
+                      <div className="flex flex-col gap-1">
+                        <div className="h-3 bg-gray-300 rounded w-24"></div>
+                        <div className="h-3 bg-gray-300 rounded w-32"></div>
+                        <div className="h-3 bg-gray-300 rounded w-20"></div>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-end">
                       <div className="h-3 bg-gray-300 rounded w-24"></div>
-                      <div className="h-3 bg-gray-300 rounded w-32"></div>
+                    </div>
+                    <div className="flex items-center justify-end">
+                      <div className="h-3 bg-gray-300 rounded w-24"></div>
+                    </div>
+                    <div className="flex items-center justify-center px-2">
+                      <div className="h-3 bg-gray-300 rounded w-12"></div>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="h-3 bg-gray-300 rounded w-20"></div>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="h-3 bg-gray-300 rounded w-16"></div>
+                    </div>
+                    <div className="flex items-center">
                       <div className="h-3 bg-gray-300 rounded w-20"></div>
                     </div>
                   </div>
-                  <div className="flex items-center justify-end">
-                    <div className="h-3 bg-gray-300 rounded w-24"></div>
-                  </div>
-                  <div className="flex items-center justify-end">
-                    <div className="h-3 bg-gray-300 rounded w-24"></div>
-                  </div>
-                  <div className="flex items-center justify-center px-2">
-                    <div className="h-3 bg-gray-300 rounded w-12"></div>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="h-3 bg-gray-300 rounded w-20"></div>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="h-3 bg-gray-300 rounded w-16"></div>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="h-3 bg-gray-300 rounded w-20"></div>
-                  </div>
-                </div>
-              );
-            })
-          ) : filteredData.length < 1 ? (
-            <div className="w-full flex items-center justify-center">
-              <img src={NoData} alt="" className="w-96 my-10" />
-            </div>
-          ) : (
-            <>
-              {filteredData?.map((subscriber) => (
-                <List key={subscriber?.id} subscriber={subscriber} />
-              ))}
-            </>
-          )}
-        </div>
-      </>
+                );
+              })
+            ) : filteredData.length < 1 ? (
+              <div className="w-full flex items-center justify-center">
+                <img src={NoData} alt="" className="w-96 my-10" />
+              </div>
+            ) : (
+              <>
+                {filteredData?.map((subscriber) => (
+                  <List key={subscriber?.id} subscriber={subscriber} />
+                ))}
+              </>
+            )}
+          </div>
+        </>
+      </div>
+
       <div id="scrollableDiv2" className="w-full flex lg:hidden flex-col gap-4">
         {subscribersLoading ? (
           <CardLoader />

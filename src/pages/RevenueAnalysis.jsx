@@ -15,6 +15,15 @@ const RevenueAnalysis = () => {
   const [hasMore, setHasMore] = useState(true);
 
   const [teamFilter, setTeamFilter] = useState(null);
+  function convertToDateFormat(date) {
+    // Extract the day, month, and year
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+    const year = date.getFullYear();
+
+    // Combine into dd-mm-yyyy format
+    return `${day}-${month}-${year}`;
+  }
 
   const getRevenueAnalysis = (page) => {
     const token = Cookies.get("token");
@@ -30,7 +39,9 @@ const RevenueAnalysis = () => {
             ? teamFilter !== null
               ? `${baseUrl}/dealership/reports/revenue?filter=${filter?.filter}&salesPerson=${teamFilter}`
               : `${baseUrl}/dealership/reports/revenue?filter=${filter?.filter}`
-            : `${baseUrl}/dealership/reports/revenue?particularDate=${filter?.date}`,
+            : `${baseUrl}/dealership/reports/revenue?particularDate=${convertToDateFormat(
+                filter?.date
+              )}`,
           { headers }
         )
         .then(

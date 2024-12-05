@@ -9,6 +9,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import { GlobalContext } from "../../context/GlobalContext";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { FaSpinner } from "react-icons/fa";
 
 const SubscribersList = ({
   revenue,
@@ -45,16 +46,24 @@ const SubscribersList = ({
     console.log(revenue?.analysis);
   }, [revenue]);
 
+  const [downloading, setDownloading] = useState(false);
   const handleDownload = async (elementId, filename) => {
     const element = document.getElementById(elementId);
     if (!element) {
       console.error("Element not found");
       return;
     }
+    setDownloading(true);
 
-    const padding = 3; // Padding at the top of each page in pixels
+    const padding = 5; // Padding at the top of each page in pixels
     element.style.backgroundColor = "#fff";
-    element.style.padding = `${padding}px`;
+    element.style.paddingTop = `${padding}px`;
+    element.style.paddingBottom = `${padding}px`;
+    // Temporarily hide elements with the class 'pdf-exclude'
+    const excludeElements = document.querySelectorAll(".pdf-exclude");
+    excludeElements.forEach((el) => {
+      el.style.display = "none";
+    });
 
     const canvas = await html2canvas(element);
     const imgData = canvas.toDataURL("image/png");
@@ -83,13 +92,19 @@ const SubscribersList = ({
 
     pdf.save(filename);
 
+    // Restore visibility of the hidden elements
+    excludeElements.forEach((el) => {
+      el.style.display = "";
+    });
     element.style.backgroundColor = "";
-    element.style.padding = "";
+    element.style.paddingTop = "";
+    element.style.paddingBottom = "";
+    setDownloading(false);
   };
 
   return (
-    <div className="bg-white px-6 pb-6 rounded-b-[18px]">
-      <div className="w-full flex items-start lg:items-center justify-between flex-col lg:flex-row gap-4 py-3">
+    <div className="bg-white  rounded-b-[18px]">
+      <div className="w-full flex items-start lg:items-center justify-between flex-col lg:flex-row gap-4 px-6 pt-3">
         <div className="flex items-center justify-start gap-3 flex-wrap">
           <button
             onClick={() => setFilter({ date: null, filter: "all" })}
@@ -146,10 +161,13 @@ const SubscribersList = ({
             setFilter={setFilter}
           />
           <button
-            onClick={() => handleDownload("revenue", "Revenue")}
-            className="bg-black text-white font-medium text-xs w-[97px] h-[32px] rounded-full"
+            onClick={() => handleDownload("revenue", "RevenueReport")}
+            className="bg-black lg:flex hidden text-white  items-center gap-1 justify-center font-medium text-xs w-auto px-3 h-[32px] rounded-full"
           >
             Download
+            {downloading && (
+              <FaSpinner className="text-white text-md animate-spin" />
+            )}
           </button>
         </div>
       </div>
@@ -157,7 +175,7 @@ const SubscribersList = ({
         <SubscribersListSkeleton />
       ) : (
         <>
-          <div id="revenue" className="w-full  hidden lg:flex flex-col">
+          <div id="revenue" className="w-full p-6  hidden lg:flex flex-col">
             <div className="w-full grid grid-cols-6 gap-4 py-4">
               <div className="flex items-center">
                 <p className="text-xs font-medium text-[#7C7C7C]">Date</p>

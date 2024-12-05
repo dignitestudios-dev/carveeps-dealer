@@ -9,6 +9,7 @@ import { NoData } from "../../assets/export";
 import InfiniteScroll from "react-infinite-scroll-component";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { FaSpinner } from "react-icons/fa";
 
 const SubscriptionAquisitionReportList = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,6 +24,16 @@ const SubscriptionAquisitionReportList = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
 
+  function convertToDateFormat(date) {
+    // Extract the day, month, and year
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+    const year = date.getFullYear();
+
+    // Combine into dd-mm-yyyy format
+    return `${day}-${month}-${year}`;
+  }
+
   const getSubscribersBought = (page) => {
     const token = Cookies.get("token");
 
@@ -35,7 +46,9 @@ const SubscriptionAquisitionReportList = () => {
         .get(
           filter?.date == null
             ? `${baseUrl}/dealership/reports/bought?filter=${filter?.filter}`
-            : `${baseUrl}/dealership/reports/bought?particularDate=${filter?.date}`,
+            : `${baseUrl}/dealership/reports/bought?particularDate=${convertToDateFormat(
+                filter?.date
+              )}`,
           { headers }
         )
         .then(
@@ -84,16 +97,24 @@ const SubscriptionAquisitionReportList = () => {
     setCurrentPage(subscribers?.length);
   };
 
+  const [downloading, setDownloading] = useState(false);
   const handleDownload = async (elementId, filename) => {
     const element = document.getElementById(elementId);
     if (!element) {
       console.error("Element not found");
       return;
     }
+    setDownloading(true);
 
     const padding = 3; // Padding at the top of each page in pixels
     element.style.backgroundColor = "#fff";
-    element.style.padding = `${padding}px`;
+    element.style.paddingTop = `${padding}px`;
+    element.style.paddingBottom = `${padding}px`;
+    // Temporarily hide elements with the class 'pdf-exclude'
+    const excludeElements = document.querySelectorAll(".pdf-exclude");
+    excludeElements.forEach((el) => {
+      el.style.display = "none";
+    });
 
     const canvas = await html2canvas(element);
     const imgData = canvas.toDataURL("image/png");
@@ -122,16 +143,22 @@ const SubscriptionAquisitionReportList = () => {
 
     pdf.save(filename);
 
+    // Restore visibility of the hidden elements
+    excludeElements.forEach((el) => {
+      el.style.display = "";
+    });
     element.style.backgroundColor = "";
-    element.style.padding = "";
+    element.style.paddingTop = "";
+    element.style.paddingBottom = "";
+    setDownloading(false);
   };
 
   return (
-    <div className="bg-white w-full rounded-[18px] p-6 flex flex-col gap-6 items-start mt-6">
-      <h1 className="text-[18px] font-bold">
+    <div className="bg-white w-full rounded-[18px] py-6 flex flex-col gap-4 items-start mt-6">
+      <h1 className="text-[18px] px-6 font-bold">
         Subscription Aquisition Report List
       </h1>
-      <div className="w-full flex flex-wrap justify-between items-center gap-3">
+      <div className="w-full flex px-6 flex-wrap justify-between items-center gap-3">
         <div className="flex items-center justify-start gap-3 flex-wrap">
           <button
             onClick={() => setFilter({ date: null, filter: "all" })}
@@ -188,18 +215,21 @@ const SubscriptionAquisitionReportList = () => {
             setFilter={setFilter}
           />
           <button
-            onClick={() => handleDownload("report", "report")}
-            className="px-4 py-2 rounded-full bg-black text-white text-xs font-medium"
+            onClick={() => handleDownload("report", "Report")}
+            className="bg-black lg:flex hidden text-white  items-center gap-1 justify-center font-medium text-xs w-auto px-3 h-[32px] rounded-full"
           >
             Download
+            {downloading && (
+              <FaSpinner className="text-white text-md animate-spin" />
+            )}
           </button>
         </div>
       </div>
 
       {subscribersLoading ? (
-        <div className="bg-white w-full rounded-[18px]  flex flex-col gap-6 items-start ">
+        <div className="bg-white px-6  w-full rounded-[18px]  flex flex-col gap-6 items-start ">
           <div className="w-full animate-pulse">
-            <div className="w-full max-h-screen overflow-y-scroll modal-scroll hidden lg:flex flex-col mt-4">
+            <div className="w-full h-auto modal-scroll hidden lg:flex flex-col mt-4">
               <div className="w-full grid grid-cols-6 gap-5 py-4">
                 <div className="bg-gray-200 h-4 rounded-full"></div>
                 <div className="bg-gray-200 h-4 rounded-full"></div>
@@ -258,7 +288,7 @@ const SubscriptionAquisitionReportList = () => {
         <>
           <div
             id="report"
-            className="w-full max-h-screen overflow-y-scroll modal-scroll hidden lg:flex flex-col"
+            className="w-full h-auto px-6 py-4 modal-scroll hidden lg:flex flex-col"
           >
             <div className="w-full grid grid-cols-6 py-4">
               <div>

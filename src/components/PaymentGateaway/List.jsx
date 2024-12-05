@@ -8,6 +8,7 @@ import { GlobalContext } from "../../context/GlobalContext";
 import { NoData } from "../../assets/export";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { FaSpinner } from "react-icons/fa";
 
 const List = () => {
   const [activeTab, setActiveTab] = useState(1);
@@ -20,7 +21,15 @@ const List = () => {
   const [data, setData] = useState([]);
   const { baseUrl, navigate, setError } = useContext(GlobalContext);
   const [dataLoading, setDataLoading] = useState(false);
+  function convertToDateFormat(date) {
+    // Extract the day, month, and year
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+    const year = date.getFullYear();
 
+    // Combine into dd-mm-yyyy format
+    return `${day}-${month}-${year}`;
+  }
   const getData = () => {
     const token = Cookies.get("token");
 
@@ -36,8 +45,12 @@ const List = () => {
             : activeTab !== 1 && filter?.date == null
             ? `${baseUrl}/dealership/transaction/withdraw?filter=${filter?.filter}`
             : activeTab == 1 && filter?.date !== null
-            ? `${baseUrl}/dealership/transaction/received?particularDate=${filter?.date}`
-            : `${baseUrl}/dealership/transaction/withdraw?particularDate=${filter?.date}`,
+            ? `${baseUrl}/dealership/transaction/received?particularDate=${convertToDateFormat(
+                filter?.date
+              )}`
+            : `${baseUrl}/dealership/transaction/withdraw?particularDate=${convertToDateFormat(
+                filter?.date
+              )}`,
           {
             headers,
           }
@@ -79,16 +92,24 @@ const List = () => {
     return date.toLocaleDateString("en-US", options);
   };
 
+  const [downloading, setDownloading] = useState(false);
   const handleDownload = async (elementId, filename) => {
     const element = document.getElementById(elementId);
     if (!element) {
       console.error("Element not found");
       return;
     }
+    setDownloading(true);
 
     const padding = 3; // Padding at the top of each page in pixels
     element.style.backgroundColor = "#fff";
-    element.style.padding = `${padding}px`;
+    element.style.paddingTop = `${padding}px`;
+    element.style.paddingBottom = `${padding}px`;
+    // Temporarily hide elements with the class 'pdf-exclude'
+    const excludeElements = document.querySelectorAll(".pdf-exclude");
+    excludeElements.forEach((el) => {
+      el.style.display = "none";
+    });
 
     const canvas = await html2canvas(element);
     const imgData = canvas.toDataURL("image/png");
@@ -117,13 +138,19 @@ const List = () => {
 
     pdf.save(filename);
 
+    // Restore visibility of the hidden elements
+    excludeElements.forEach((el) => {
+      el.style.display = "";
+    });
     element.style.backgroundColor = "";
-    element.style.padding = "";
+    element.style.paddingTop = "";
+    element.style.paddingBottom = "";
+    setDownloading(false);
   };
 
   return (
-    <div className="w-full">
-      <div className="flex gap-x-10 my-4">
+    <div className="w-full ">
+      <div className="flex gap-x-10 px-6 my-4">
         <button
           onClick={() => setActiveTab(1)}
           className={`text-[13px] font-semibold ${
@@ -145,10 +172,10 @@ const List = () => {
           Withdrawn
         </button>
       </div>
-      <p className="text-[12px] font-medium text-[#5C5C5C]">
+      <p className="text-[12px] px-6 font-medium text-[#5C5C5C]">
         Total Amount {activeTab == 2 ? "Withdrawn" : "Received"}
       </p>
-      <h1 className="text-[32px] font-bold">
+      <h1 className="text-[32px] font-bold px-6">
         {dataLoading ? (
           <>
             {/* Total Amount Loader */}
@@ -160,7 +187,7 @@ const List = () => {
           "$" + data?.totalWithdrawn?.toFixed(2)
         )}
       </h1>
-      <div className="w-full flex items-center justify-between flex-wrap my-4 gap-3">
+      <div className="w-full px-6 flex items-center justify-between flex-wrap my-4 gap-3">
         <div className="flex items-center justify-start gap-3 flex-wrap">
           <button
             onClick={() => setFilter({ date: null, filter: "all" })}
@@ -217,16 +244,19 @@ const List = () => {
           />
           <button
             onClick={() =>
-              handleDownload("transaction-history", "TransactionHistory")
+              handleDownload("transaction-history", "Transaction History")
             }
-            className="text-[12px] font-medium text-white bg-black px-4 py-2 rounded-full"
+            className="bg-black lg:flex hidden text-white  items-center gap-1 justify-center font-medium text-xs w-auto px-3 h-[32px] rounded-full"
           >
             Download
+            {downloading && (
+              <FaSpinner className="text-white text-md animate-spin" />
+            )}
           </button>
         </div>
       </div>
       {dataLoading ? (
-        <div className="w-full p-4 animate-pulse">
+        <div className="w-full p-4 px-6 animate-pulse">
           {/* Transactions Table Loader (Desktop) */}
           <div className="w-full hidden lg:block">
             <div className="w-full grid grid-cols-4 py-4 mb-2">
@@ -261,9 +291,9 @@ const List = () => {
         </div>
       ) : (
         <>
-          <div className="w-full hidden lg:block">
+          <div className="w-full hidden lg:block ">
             {activeTab === 2 ? (
-              <div id="transaction-history" className="w-full">
+              <div id="transaction-history" className="w-full p-6 ">
                 <div className="w-full grid grid-cols-4 p-4">
                   <div>
                     <p className="text-[11px] font-medium text-[#7C7C7C]">
@@ -314,7 +344,7 @@ const List = () => {
                 )}
               </div>
             ) : (
-              <div id="transaction-history" className="w-full">
+              <div id="transaction-history" className="w-full p-6">
                 <div className="w-full grid grid-cols-6 py-4">
                   <div>
                     <p className="text-[11px] font-medium text-[#7C7C7C]">

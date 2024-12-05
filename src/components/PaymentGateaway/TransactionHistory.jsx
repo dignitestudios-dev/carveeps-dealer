@@ -8,8 +8,8 @@ const TransactionHistory = ({ setUpdate }) => {
     setShowModal(!showModal);
   };
   return (
-    <div className="bg-white px-6 py-4">
-      <div className="flex items-start justify-between gap-6 flex-wrap">
+    <div className="bg-white  py-4">
+      <div className="flex items-start px-6 justify-between gap-6 flex-wrap">
         <div>
           <h1 className="text-[18px] font-bold">Transaction History</h1>
           <p className="text-xs mt-1">

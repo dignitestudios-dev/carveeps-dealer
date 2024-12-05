@@ -70,14 +70,14 @@ const List = ({ subscriber, loading }) => {
         <p
           className={`text-xs font-medium flex items-center gap-2 ${
             subscriber?.status === "paid"
-              ? "text-[#01D763] bg-[#F1F1F1] px-3 py-1 rounded-full"
-              : "text-[#191919] bg-gray-200 px-3 py-1 rounded-full"
+              ? "text-[#01D763]  rounded-full"
+              : "text-[#fb3838]  rounded-full"
           }`}
         >
           {subscriber?.status == "paid" ? "Active" : "Inactive"}
         </p>
       </div>
-      <div className="flex items-center">
+      <div className="flex pdf-exclude items-center">
         <button
           onClick={() => {
             navigate(`/subscriber-details/${subscriber?._id}`);
