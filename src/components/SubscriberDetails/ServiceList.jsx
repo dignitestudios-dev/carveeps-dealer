@@ -8,7 +8,6 @@ import { NoData } from "../../assets/export";
 const ServiceList = ({ services, loading, update }) => {
   const [showModal, setShowModal] = useState(false);
   const [openServices, setOpenServices] = useState(false);
-  console.log(services);
 
   const handleToggleServices = () => {
     setOpenServices(!openServices);

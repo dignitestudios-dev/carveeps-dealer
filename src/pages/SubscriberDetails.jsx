@@ -83,7 +83,7 @@ const SubscriberDetails = () => {
 
   useEffect(() => {
     getData();
-    getPreviousSubscriptions();
+    tempData?.user?._id && getPreviousSubscriptions();
   }, []);
   return (
     <div>

@@ -89,9 +89,10 @@ const Card = ({ subscriber, loading }) => {
       <div className="w-full flex items-center justify-between">
         <p className="text-[11px] text-[#7C7C7C] font-medium">View Details</p>
         <button
-          onClick={() =>
-            navigateToLink(`/subscriber-details/${subscriber?._id}`, "Reports")
-          }
+          onClick={() => {
+            navigateToLink(`/subscriber-details/${subscriber?._id}`, "Reports");
+            setTempData(subscriber);
+          }}
           className="text-[#3DA2FF] text-[11px] font-medium underline"
         >
           View Detail
