@@ -43,9 +43,6 @@ const SubscribersList = ({
   };
 
   const { team } = useContext(GlobalContext);
-  useEffect(() => {
-    console.log(revenue?.analysis);
-  }, [revenue]);
 
   const [downloading, setDownloading] = useState(false);
   const handleDownload = async (elementId, filename) => {
@@ -182,6 +179,7 @@ const SubscribersList = ({
             setFilter={setFilter}
           />
           <button
+            disabled={loading}
             onClick={() =>
               exportToExcel(dataToExport, "RevenueReport", dataWidths)
             }

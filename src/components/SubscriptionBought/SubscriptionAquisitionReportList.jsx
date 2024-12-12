@@ -241,6 +241,7 @@ const SubscriptionAquisitionReportList = () => {
             setFilter={setFilter}
           />
           <button
+            disabled={subscribersLoading}
             onClick={() =>
               exportToExcel(
                 dataToExport,

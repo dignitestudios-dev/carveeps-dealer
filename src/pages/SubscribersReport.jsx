@@ -307,6 +307,7 @@ const SubscribersReport = () => {
             />
 
             <button
+              disabled={subscribersLoading}
               onClick={() =>
                 exportToExcel(dataToExport, "Subscriber Report", dataWidths)
               }

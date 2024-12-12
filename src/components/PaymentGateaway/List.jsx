@@ -286,6 +286,7 @@ const List = () => {
             setFilter={setFilter}
           />
           <button
+            disabled={dataLoading}
             onClick={() =>
               exportToExcel(
                 dataToExport,
