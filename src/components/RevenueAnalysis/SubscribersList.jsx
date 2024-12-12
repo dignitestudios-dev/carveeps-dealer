@@ -10,6 +10,7 @@ import { GlobalContext } from "../../context/GlobalContext";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { FaSpinner } from "react-icons/fa";
+import exportToExcel from "../../utils/dataExport";
 
 const SubscribersList = ({
   revenue,
@@ -102,6 +103,26 @@ const SubscribersList = ({
     setDownloading(false);
   };
 
+  const dataToExport = revenue?.map((item) => ({
+    Date: item?.date
+      ? new Date(item?.date).toLocaleDateString("en-US") // Format as mm/dd/yyyy
+      : "N/A",
+    Name: item?.subscriberName || "N/A",
+    PlanName: item?.subscriptionPlan || "N/A",
+    Duration: item?.duration || "N/A",
+    SalesPerson: item?.salesPerson || "N/A",
+    Revenue: item?.revenue || 0,
+  }));
+
+  const dataWidths = [
+    { wch: 15 }, // CreatedAt
+    { wch: 20 }, // Name
+    { wch: 25 }, // SubscriptionPlan
+    { wch: 10 }, // Interval
+    { wch: 30 }, // Email
+    { wch: 10 }, // Price
+  ];
+
   return (
     <div className="bg-white  rounded-b-[18px]">
       <div className="w-full flex items-start lg:items-center justify-between flex-col lg:flex-row gap-4 px-6 pt-3">
@@ -161,7 +182,9 @@ const SubscribersList = ({
             setFilter={setFilter}
           />
           <button
-            onClick={() => handleDownload("revenue", "RevenueReport")}
+            onClick={() =>
+              exportToExcel(dataToExport, "RevenueReport", dataWidths)
+            }
             className="bg-black lg:flex hidden text-white  items-center gap-1 justify-center font-medium text-xs w-auto px-3 h-[32px] rounded-full"
           >
             Download

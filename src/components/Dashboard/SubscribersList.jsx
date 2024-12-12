@@ -20,6 +20,7 @@ import CardLoader from "./CardLoader";
 import { NoData } from "../../assets/export";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import exportToExcel from "../../utils/dataExport";
 
 const SubscribersList = () => {
   const [showDropDown, setShowDropdown] = useState(false);
@@ -61,6 +62,15 @@ const SubscribersList = () => {
   const [planFilter, setPlanFilter] = useState(null);
 
   const [type, setType] = useState(null);
+  function convertToDateFormat(date) {
+    // Extract the day, month, and year
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+    const year = date.getFullYear();
+
+    // Combine into dd-mm-yyyy format
+    return `${day}-${month}-${year}`;
+  }
 
   const getSubscribersReport = () => {
     const token = Cookies.get("token");
@@ -80,7 +90,9 @@ const SubscribersList = () => {
               : type !== null
               ? `${baseUrl}/dealership/reports/subscriber?from=0&filter=${filter?.filter}&type=${type}`
               : `${baseUrl}/dealership/reports/subscriber?from=0&filter=${filter?.filter}`
-            : `${baseUrl}/dealership/reports/subscriber?from=0&particularDate=${filter?.date}`,
+            : `${baseUrl}/dealership/reports/subscriber?from=0&particularDate=${convertToDateFormat(
+                filter?.date
+              )}`,
           {
             headers,
           }
@@ -239,14 +251,14 @@ const SubscribersList = () => {
               setFilter={setFilter}
             />
 
-            <button
+            {/* <button
               onClick={() =>
-                handleDownload("subscriber-report", "Subscriber Report")
+                exportToExcel(dataToExport, "Subscriber Report Sheet")
               }
               className="bg-black lg:block hidden text-white font-medium text-xs w-[97px] h-[32px] rounded-full"
             >
               Download
-            </button>
+            </button> */}
           </div>
         </div>
       </div>

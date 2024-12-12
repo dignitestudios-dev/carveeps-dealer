@@ -82,6 +82,7 @@ const RevenueAnalysis = () => {
   useEffect(() => {
     getRevenueAnalysis(0);
   }, [filter, teamFilter]);
+
   return (
     <div>
       <Analytics revenue={revenue} loading={revenueLoading} />

@@ -9,6 +9,7 @@ import { NoData } from "../../assets/export";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { FaSpinner } from "react-icons/fa";
+import exportToExcel from "../../utils/dataExport";
 
 const List = () => {
   const [activeTab, setActiveTab] = useState(1);
@@ -148,6 +149,48 @@ const List = () => {
     setDownloading(false);
   };
 
+  const dataToExport = data?.transactions?.map(
+    activeTab == 2
+      ? (item) => ({
+          Date: item?.createdAt
+            ? new Date(item?.createdAt).toLocaleDateString("en-US") // Format as mm/dd/yyyy
+            : "N/A",
+          TransactionID: item?.transactionId || "N/A",
+
+          Amount: item?.price || 0,
+        })
+      : (item) => ({
+          Date: item?.date
+            ? new Date(item?.date).toLocaleDateString("en-US") // Format as mm/dd/yyyy
+            : "N/A",
+          Name: item?.user?.name || "N/A",
+          PlanName: item?.subscriptionPlan?.name || "N/A",
+          Duration:
+            item?.subscriptionPlan?.interval == "year"
+              ? "Yearly"
+              : item?.subscriptionPlan?.interval == "month" &&
+                item?.subscriptionPlan?.intervalCount == 6
+              ? "BiAnnually"
+              : "Monthly",
+          Amount: item?.subscriptionPlan?.price || 0,
+        })
+  );
+
+  const dataWidths =
+    activeTab == 2
+      ? [
+          { wch: 15 }, // CreatedAt
+          { wch: 35 }, // Transaction ID
+          { wch: 10 }, // Price
+        ]
+      : [
+          { wch: 15 }, // CreatedAt
+          { wch: 20 }, // Name
+          { wch: 25 }, // SubscriptionPlan
+          { wch: 10 }, // Interval
+          { wch: 10 }, // Price
+        ];
+
   return (
     <div className="w-full ">
       <div className="flex gap-x-10 px-6 my-4">
@@ -244,7 +287,11 @@ const List = () => {
           />
           <button
             onClick={() =>
-              handleDownload("transaction-history", "Transaction History")
+              exportToExcel(
+                dataToExport,
+                activeTab == 2 ? "Withdrawal History" : "Transaction History",
+                dataWidths
+              )
             }
             className="bg-black lg:flex hidden text-white  items-center gap-1 justify-center font-medium text-xs w-auto px-3 h-[32px] rounded-full"
           >

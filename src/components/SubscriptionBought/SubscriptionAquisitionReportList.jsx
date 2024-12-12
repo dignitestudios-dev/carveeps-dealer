@@ -10,6 +10,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { FaSpinner } from "react-icons/fa";
+import exportToExcel from "../../utils/dataExport";
 
 const SubscriptionAquisitionReportList = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -153,6 +154,31 @@ const SubscriptionAquisitionReportList = () => {
     setDownloading(false);
   };
 
+  const dataToExport = subscribers?.map((item) => ({
+    Date: item?.date
+      ? new Date(item?.date).toLocaleDateString("en-US") // Format as mm/dd/yyyy
+      : "N/A",
+    Name: item?.subscriberName || "N/A",
+    PlanName: item?.subscriptionPlan || "N/A",
+    Duration:
+      item?.interval == "year"
+        ? "Yearly"
+        : item?.interval == "month" && item?.intervalCount == 6
+        ? "BiAnnually"
+        : "Monthly",
+    SalesPerson: item?.soldBy || "N/A",
+    Amount: item?.amount || 0,
+  }));
+
+  const dataWidths = [
+    { wch: 15 }, // CreatedAt
+    { wch: 20 }, // Name
+    { wch: 25 }, // SubscriptionPlan
+    { wch: 10 }, // Interval
+    { wch: 30 }, // Email
+    { wch: 10 }, // Price
+  ];
+
   return (
     <div className="bg-white w-full rounded-[18px] py-6 flex flex-col gap-4 items-start mt-6">
       <h1 className="text-[18px] px-6 font-bold">
@@ -215,7 +241,13 @@ const SubscriptionAquisitionReportList = () => {
             setFilter={setFilter}
           />
           <button
-            onClick={() => handleDownload("report", "Report")}
+            onClick={() =>
+              exportToExcel(
+                dataToExport,
+                "Subscription Acquisition Report",
+                dataWidths
+              )
+            }
             className="bg-black lg:flex hidden text-white  items-center gap-1 justify-center font-medium text-xs w-auto px-3 h-[32px] rounded-full"
           >
             Download

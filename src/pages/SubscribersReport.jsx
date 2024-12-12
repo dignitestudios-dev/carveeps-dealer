@@ -20,6 +20,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { FaSpinner } from "react-icons/fa";
+import exportToExcel from "../utils/dataExport";
 
 const SubscribersReport = () => {
   const handleToggleDropdown = () => {
@@ -127,6 +128,38 @@ const SubscribersReport = () => {
         ?.toLowerCase()
         .includes(debouncedValue.toLowerCase())
   );
+
+  const dataToExport = subscribers?.map((item) => ({
+    Name: item?.user?.name || "N/A",
+    Email: item?.user?.email || "N/A",
+    PhoneNumber: item?.user?.phoneNumber || "N/A",
+    VIN: item?.user?.vehicle?.vin || "N/A",
+    SubscriptionDate: item?.createdAt
+      ? new Date(item?.createdAt).toLocaleDateString("en-US") // Format as mm/dd/yyyy
+      : "N/A",
+    Plan: item?.subscriptionPlan?.name || "N/A",
+    Price: item?.subscriptionPlan?.price || 0,
+    Interval:
+      item?.subscriptionPlan?.interval == "year"
+        ? "Yearly"
+        : item?.subscriptionPlan?.interval == "month" &&
+          item?.subscriptionPlan?.intervalCount == 6
+        ? "BiAnnually"
+        : "Monthly",
+    Status: item?.status === "paid" ? "Active" : "Inactive",
+  }));
+
+  const dataWidths = [
+    { wch: 20 }, // Name
+    { wch: 30 }, // Email
+    { wch: 15 }, // PhoneNumber
+    { wch: 20 }, // VIN
+    { wch: 15 }, // CreatedAt
+    { wch: 25 }, // SubscriptionPlan
+    { wch: 10 }, // Price
+    { wch: 10 }, // Interval
+    { wch: 10 }, // Status
+  ];
 
   const fetchNewData = (length) => {
     setCurrentPage(subscribers?.length);
@@ -274,7 +307,9 @@ const SubscribersReport = () => {
             />
 
             <button
-              onClick={() => handleDownload("subscriber-report", "Report")}
+              onClick={() =>
+                exportToExcel(dataToExport, "Subscriber Report", dataWidths)
+              }
               className="bg-black lg:flex hidden text-white  items-center gap-1 justify-center font-medium text-xs w-auto px-3 h-[32px] rounded-full"
             >
               Download
