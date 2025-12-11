@@ -85,6 +85,7 @@ const SubscriberDetails = () => {
     getData();
     tempData?.user?._id && getPreviousSubscriptions();
   }, []);
+  console.log(data,"subscriber-data")
   return (
     <div>
       <SubscriberProfile data={data} loading={dataLoading} />
