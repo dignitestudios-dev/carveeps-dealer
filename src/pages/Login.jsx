@@ -8,7 +8,7 @@ import { LuEye } from "react-icons/lu";
 import { LuEyeOff } from "react-icons/lu";
 import Cookies from "js-cookie";
 import axios from "axios";
-import { validateEmail } from "../utils/validators";
+import { emailToLowerCase, validateEmail } from "../utils/validators";
 import Error from "../components/Global/Error";
 import BtnLoader from "../components/Global/BtnLoader";
 

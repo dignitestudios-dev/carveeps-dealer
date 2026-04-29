@@ -5,6 +5,7 @@ import Cookies from "js-cookie";
 import Success from "../components/Global/Success";
 import Error from "../components/Global/Error";
 import BtnLoader from "../components/Global/BtnLoader";
+import { emailToLowerCase } from "../utils/validators";
 
 const ChangePassUpdateEmail = () => {
   const { navigate } = useContext(GlobalContext);
@@ -16,9 +17,12 @@ const ChangePassUpdateEmail = () => {
   const updatePassword = () => {
     setLoading(true);
     if (email) {
+
+      const payloadEmail = emailToLowerCase(email);
+
       axios
         .post(`${baseUrl}/auth/forgotDealership`, {
-          email: email,
+          email: payloadEmail,
           role: "dealership",
         })
         .then((response) => {
