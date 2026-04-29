@@ -7,7 +7,7 @@ import {
 } from "react-icons/md";
 import { AiOutlineTeam } from "react-icons/ai";
 import { CiSettings } from "react-icons/ci";
-import { LuUser2 } from "react-icons/lu";
+import { LuUserRound } from "react-icons/lu";
 import { BiSupport } from "react-icons/bi";
 import { IoLogOutOutline } from "react-icons/io5";
 import { MdKeyboardArrowUp } from "react-icons/md";
@@ -185,7 +185,7 @@ const Sidebar = () => {
               : "text-[#7C7C7C] bg-transparent font-semibold"
           } rounded-xl px-5 flex justify-start items-center gap-3 `}
         >
-          <LuUser2 className="text-xl" />
+          <LuUserRound className="text-xl" />
           <span className="text-sm">Profile</span>
         </button>
         <button
