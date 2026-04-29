@@ -6,6 +6,7 @@ import Cookies from "js-cookie";
 import axios from "axios";
 import { useNavigate } from "react-router";
 import BtnLoader from "../Global/BtnLoader";
+import { emailToLowerCase } from "../../utils/validators";
 
 const AddTeamMember = () => {
   const navigate = useNavigate();
@@ -52,7 +53,7 @@ const AddTeamMember = () => {
   function handleSubmit(e) {
     e.preventDefault();
     const token = Cookies.get("token");
-
+    const payloadEmail = emailToLowerCase(email);
     if (token) {
       const headers = {
         Authorization: `Bearer ${token}`,
@@ -61,7 +62,7 @@ const AddTeamMember = () => {
         setFormError("Name cannot be left empty.");
       } else if (email == "") {
         setFormError("Email cannot be left empty.");
-      } else if (!validateEmail(email)) {
+      } else if (!validateEmail(payloadEmail)) {
         setFormError("Email is not a valid email.");
       } else if (phoneNumber == "") {
         setFormError("Phone Number cannot be left empty.");
@@ -76,7 +77,7 @@ const AddTeamMember = () => {
             `${baseUrl}/dealership/salesPerson`,
             {
               name: name,
-              email: email,
+              email: payloadEmail,
               jobTitle: jobTitle,
               phoneNumber: phoneNumber,
               empNo: empNumber,

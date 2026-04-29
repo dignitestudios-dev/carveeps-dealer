@@ -30,12 +30,13 @@ const Login = () => {
 
   function handleLogin(e) {
     e.preventDefault();
+    const payloadEmail  = emailToLowerCase(email);
     if (email == "") {
       setEmailError("Email is required.");
       setTimeout(() => {
         setEmailError(false);
       }, 3000);
-    } else if (!validateEmail(email)) {
+    } else if (!validateEmail(payloadEmail)) {
       setEmailError("Email not in correct format.");
       setTimeout(() => {
         setEmailError(false);
@@ -52,9 +53,10 @@ const Login = () => {
       }, 3000);
     } else {
       setLoading(true);
+      
       axios
         .post(`${baseUrl}/auth/signIn`, {
-          email: email,
+          email: payloadEmail,
           password: password,
           role: "dealership",
         })
