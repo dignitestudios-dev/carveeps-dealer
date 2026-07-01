@@ -22,17 +22,10 @@ Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 // Chart options
 const options = {
   responsive: true,
+  maintainAspectRatio: false, // 👈 zaroori
   plugins: {
     legend: {
-      position: "top",
       display: false,
-    },
-    tooltip: {
-      callbacks: {
-        label: function (context) {
-          return context.dataset.label + ": " + context.raw;
-        },
-      },
     },
   },
   scales: {
@@ -52,9 +45,8 @@ const options = {
         display: false,
       },
     },
-  },
+  }, 
 };
-
 const monthsArray = [
   "January",
   "February",
