@@ -9,9 +9,10 @@ import { GlobalContext } from "../../context/GlobalContext";
 import Cookies from "js-cookie";
 import axios from "axios";
 
-const Balance = ({ update, setUpdate }) => {
+const Balance = ({ data, dataLoading, getAccountData, update, setUpdate }) => {
   const [showModal, setShowModal] = useState(false);
   const [showBankDetailsModal, setShowBankDetailsModal] = useState(false);
+  const [payoutModeLoading, setPayoutModeLoading] = useState(false);
 
   const handleShowModal = () => {
     setShowModal(!showModal);
@@ -20,46 +21,39 @@ const Balance = ({ update, setUpdate }) => {
   const handleShowBankDetailsModal = () => {
     setShowBankDetailsModal(!showBankDetailsModal);
   };
-  const [data, setData] = useState([]);
   const { baseUrl, navigate, setError } = useContext(GlobalContext);
-  const [dataLoading, setDataLoading] = useState(false);
-  const getData = () => {
-    const token = Cookies.get("token");
 
-    if (token) {
-      setDataLoading(true);
+  const handlePayoutModeChange = async (mode) => {
+    const token = Cookies.get("token");
+    if (!token) return;
+
+    try {
+      setPayoutModeLoading(true);
       const headers = {
         Authorization: `Bearer ${token}`,
       };
-      axios
-        .get(`${baseUrl}/dealership/account`, {
-          headers,
-        })
-        .then(
-          (response) => {
-            setData(response?.data?.data);
-            setDataLoading(false);
-          },
-          (error) => {
-            setDataLoading(false);
-            if (error?.response?.status == 401) {
-              Cookies.remove("token");
-              navigate("/login");
-            }
-            setError(error?.response?.data?.message);
-          }
-        );
-    } else {
-      navigate("/login");
+      await axios.put(
+        `${baseUrl}/dealership/bank/payout-mode`,
+        { mode },
+        { headers }
+      );
+      if (getAccountData) {
+        getAccountData();
+      }
+    } catch (err) {
+      console.error(err);
+      setError(
+        err?.response?.data?.message || "Failed to update payout mode."
+      );
+    } finally {
+      setPayoutModeLoading(false);
     }
   };
 
   useEffect(() => {
-    getData();
-  }, [update]);
-
-  useEffect(() => {
-    Cookies.set("accountNumber", data?.accountNumber);
+    if (data) {
+      Cookies.set("accountNumber", data?.accountNumber);
+    }
   }, [data]);
 
   function formatValue(data) {
@@ -153,6 +147,40 @@ const Balance = ({ update, setUpdate }) => {
           <p className="text-base text-[#0F0F0F]">
             ****-****-****-{data?.accountNumber}
           </p>
+        </div>
+        <div className="bg-white p-4 mt-3 rounded-xl flex items-center justify-between flex-wrap">
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold text-gray-800">Payout Mode</span>
+            <span className="text-xs text-gray-500 mt-0.5">
+              {data?.payoutMode === "automatic" || data?.payoutMode === "auto"
+                ? "Automatic withdrawals are enabled"
+                : "Withdraw funds manually at any time"}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 mt-2 sm:mt-0">
+            <button
+              onClick={() => handlePayoutModeChange("manual")}
+              disabled={payoutModeLoading}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                data?.payoutMode === "manual"
+                  ? "bg-[#FF204E] text-white shadow-sm"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              Manual
+            </button>
+            <button
+              onClick={() => handlePayoutModeChange("automatic")}
+              disabled={payoutModeLoading}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                data?.payoutMode === "automatic" || data?.payoutMode === "auto"
+                  ? "bg-[#FF204E] text-white shadow-sm"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              Automatic
+            </button>
+          </div>
         </div>
       </div>
     </div>

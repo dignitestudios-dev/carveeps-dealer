@@ -11,13 +11,15 @@ import { IoMdClose } from "react-icons/io";
 import Error from "../Global/Error";
 import { useNavigate } from "react-router";
 
-const SubscriberServices = ({ data, loading }) => {
+const SubscriberServices = ({ data, loading, getData }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [refundModal, setRefundModal] = useState(false);
   const [selectedRefund, setSelectedRefund] = useState(null);
   const [successModal, setSuccessModal] = useState(false);
   const [Refundloading, setRefundLoading] = useState(false);
   const [apiError, setApiError] = useState(false);
+  const [autoRenewLoading, setAutoRenewLoading] = useState(false);
+
   const navigate = useNavigate();
   const { tempData, baseUrl, setError } = useContext(GlobalContext);
   const handleRefundSubmit = async () => {
@@ -31,7 +33,7 @@ const SubscriberServices = ({ data, loading }) => {
       await axios.put(
         `${baseUrl}/dealership/subscription/refund`,
         {
-          subscription: tempData?._id,
+          subscription: data?._id,
           refund: refundValue,
         },
         {
@@ -116,8 +118,46 @@ const SubscriberServices = ({ data, loading }) => {
   useEffect(() => {
     data?._id && getServices();
   }, [data, filter, update]);
+  const handleAutoRenewOff = async () => {
+    if (!data?._id) {
+      setError("No active subscription found.");
+      return;
+    }
+    const token = Cookies.get("token");
 
-  console.log(tempData, "tempData-plain");
+
+    setAutoRenewLoading(true);
+
+    try {
+      const headers = { Authorization: `Bearer ${token}` };
+
+      const response = await axios.put(
+        `${baseUrl}/dealership/subscription/cancel`,
+        { subscription: data?._id, cancelAtPeriodEnd: true, },
+        { headers }
+      );
+
+      if (response.status === 200) {
+        // ✅ Refresh package info
+        getServices();
+
+        // ✅ Refresh subscription info
+        if (getData) {
+          getData();
+        }
+
+        // ✅ Update isSubscribed flag in cookies
+
+      }
+    } catch (err) {
+      console.error(err);
+      setError(
+        err?.response?.data?.message || "Failed to cancel subscription."
+      );
+    } finally {
+      setAutoRenewLoading(false);
+    }
+  }
 
   return loading ? (
     <div className="w-full mt-4 p-6 bg-white rounded-[18px] flex flex-col gap-6 animate-pulse">
@@ -172,20 +212,20 @@ const SubscriberServices = ({ data, loading }) => {
               <div className="flex items-center gap-2">
                 <FiCreditCard className="w-5 h-5" />
                 <span className="text-lg font-bold">
-                  {tempData?.subscriptionPlan?.name}
+                  {data?.subscriptionPlan?.name || tempData?.subscriptionPlan?.name}
                 </span>
               </div>
               <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
                 <GoDotFill className="text-[#00E13F] w-3 h-3" />
                 <span className="text-xs font-medium">
-                  {tempData?.status === "paid" ? "Active" : "Inactive"}
+                  {(data?.status || tempData?.status) === "paid" ? "Active" : "Inactive"}
                 </span>
               </div>
             </div>
 
             <div className="space-y-1">
               <p className="text-white/80 text-sm">
-                Price: {tempData?.subscriptionPlan?.price}
+                Price: {data?.subscriptionPlan?.price || tempData?.subscriptionPlan?.price}
               </p>
               {/* <p className="text-white/70 text-xs">
                 Next billing: {tempData?.subscriptionPlan?.nextBilling}
@@ -194,14 +234,31 @@ const SubscriberServices = ({ data, loading }) => {
           </div>
 
           {/* Action Button */}
-          {tempData?.status === "paid" && (
+          <div className="flex gap-3">
+            {(data?.status || tempData?.status) === "paid" && (
+              <button
+                onClick={() => setRefundModal(true)}
+                className="flex-1 bg-gray-100 hover:bg-gray-200 transition-colors rounded-xl py-3 text-sm font-semibold text-gray-800 flex items-center justify-center"
+              >
+                Refund
+              </button>
+            )}
+
             <button
-              onClick={() => setRefundModal(true)}
-              className="w-full bg-gray-100 hover:bg-gray-200 transition-colors rounded-xl py-3 text-sm font-semibold text-gray-800 flex items-center justify-center gap-2"
+              onClick={handleAutoRenewOff}
+              disabled={autoRenewLoading || data?.cancelAtPeriodEnd === true}
+              className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium transition ${autoRenewLoading || data?.cancelAtPeriodEnd === true
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-amber-500 hover:bg-amber-600 text-white"
+                }`}
             >
-              Refund
+              {autoRenewLoading
+                ? "Loading..."
+                : data?.cancelAtPeriodEnd === true
+                  ? "Auto-Renewal Off"
+                  : "Turn Off Auto-Renewal"}
             </button>
-          )}
+          </div>
         </div>
 
         {/* Refund Modal */}
@@ -231,11 +288,10 @@ const SubscriberServices = ({ data, loading }) => {
                   {/* 100% Refund */}
                   <label
                     className={`flex items-start gap-4 cursor-pointer p-4 border-2 rounded-xl transition-all
-                    ${
-                      selectedRefund === "100"
+                    ${selectedRefund === "100"
                         ? "border-[#C20028] bg-[#fff3f6] shadow-md"
                         : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                    }`}
+                      }`}
                   >
                     <input
                       type="radio"
@@ -248,11 +304,10 @@ const SubscriberServices = ({ data, loading }) => {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <FiCheckCircle
-                          className={`w-5 h-5 ${
-                            selectedRefund === "100"
-                              ? "text-[#C20028]"
-                              : "text-gray-400"
-                          }`}
+                          className={`w-5 h-5 ${selectedRefund === "100"
+                            ? "text-[#C20028]"
+                            : "text-gray-400"
+                            }`}
                         />
                         <span className="font-semibold text-gray-900">
                           Full Refund
@@ -267,11 +322,10 @@ const SubscriberServices = ({ data, loading }) => {
                   {/* 50% Refund */}
                   <label
                     className={`flex items-start gap-4 cursor-pointer p-4 border-2 rounded-xl transition-all
-                    ${
-                      selectedRefund === "50"
+                    ${selectedRefund === "50"
                         ? "border-[#C20028] bg-[#fff3f6] shadow-md"
                         : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                    }`}
+                      }`}
                   >
                     <input
                       type="radio"
@@ -284,11 +338,10 @@ const SubscriberServices = ({ data, loading }) => {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <FiCheckCircle
-                          className={`w-5 h-5 ${
-                            selectedRefund === "50"
-                              ? "text-[#C20028]"
-                              : "text-gray-400"
-                          }`}
+                          className={`w-5 h-5 ${selectedRefund === "50"
+                            ? "text-[#C20028]"
+                            : "text-gray-400"
+                            }`}
                         />
                         <span className="font-semibold text-gray-900">
                           Partial Refund
@@ -303,11 +356,10 @@ const SubscriberServices = ({ data, loading }) => {
                   {/* No Refund */}
                   <label
                     className={`flex items-start gap-4 cursor-pointer p-4 border-2 rounded-xl transition-all
-                    ${
-                      selectedRefund === "no"
+                    ${selectedRefund === "no"
                         ? "border-[#C20028] bg-[#fff3f6] shadow-md"
                         : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                    }`}
+                      }`}
                   >
                     <input
                       type="radio"
@@ -320,11 +372,10 @@ const SubscriberServices = ({ data, loading }) => {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <FiXCircle
-                          className={`w-5 h-5 ${
-                            selectedRefund === "no"
-                              ? "text-[#C20028]"
-                              : "text-gray-400"
-                          }`}
+                          className={`w-5 h-5 ${selectedRefund === "no"
+                            ? "text-[#C20028]"
+                            : "text-gray-400"
+                            }`}
                         />
                         <span className="font-semibold text-gray-900">
                           Cancel Without Refund
@@ -352,11 +403,10 @@ const SubscriberServices = ({ data, loading }) => {
                     disabled={!selectedRefund || Refundloading}
                     onClick={handleRefundSubmit}
                     className={`flex-1 rounded-xl py-3 font-semibold transition-all
-  ${
-    selectedRefund
-      ? "bg-[#C20028] text-white hover:bg-[#a00020] shadow-lg"
-      : "bg-gray-200 text-gray-400 cursor-not-allowed"
-  }`}
+  ${selectedRefund
+                        ? "bg-[#C20028] text-white hover:bg-[#a00020] shadow-lg"
+                        : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                      }`}
                   >
                     {Refundloading ? "Processing..." : "Submit"}
                   </button>
@@ -448,11 +498,10 @@ const SubscriberServices = ({ data, loading }) => {
               onClick={() => {
                 setFilter({ filter: "12months", date: null });
               }}
-              className={`text-xs font-medium ${
-                filter?.filter == "12months"
-                  ? "bg-[#FF204E]  text-white"
-                  : "text-black bg-[#EDEDED]"
-              } rounded-full px-3 py-1.5`}
+              className={`text-xs font-medium ${filter?.filter == "12months"
+                ? "bg-[#FF204E]  text-white"
+                : "text-black bg-[#EDEDED]"
+                } rounded-full px-3 py-1.5`}
             >
               12 Months
             </button>
@@ -460,11 +509,10 @@ const SubscriberServices = ({ data, loading }) => {
               onClick={() => {
                 setFilter({ filter: "30days", date: null });
               }}
-              className={`text-xs font-medium ${
-                filter?.filter == "30days"
-                  ? "bg-[#FF204E]  text-white"
-                  : "text-black bg-[#EDEDED]"
-              } rounded-full px-3 py-1.5`}
+              className={`text-xs font-medium ${filter?.filter == "30days"
+                ? "bg-[#FF204E]  text-white"
+                : "text-black bg-[#EDEDED]"
+                } rounded-full px-3 py-1.5`}
             >
               30 days
             </button>
@@ -472,11 +520,10 @@ const SubscriberServices = ({ data, loading }) => {
               onClick={() => {
                 setFilter({ filter: "7days", date: null });
               }}
-              className={`text-xs font-medium ${
-                filter?.filter == "7days"
-                  ? "bg-[#FF204E]  text-white"
-                  : "text-black bg-[#EDEDED]"
-              } rounded-full px-3 py-1.5`}
+              className={`text-xs font-medium ${filter?.filter == "7days"
+                ? "bg-[#FF204E]  text-white"
+                : "text-black bg-[#EDEDED]"
+                } rounded-full px-3 py-1.5`}
             >
               7 days
             </button>
@@ -484,11 +531,10 @@ const SubscriberServices = ({ data, loading }) => {
               onClick={() => {
                 setFilter({ filter: "24hours", date: null });
               }}
-              className={`text-xs font-medium ${
-                filter?.filter == "24hours"
-                  ? "bg-[#FF204E]  text-white"
-                  : "text-black bg-[#EDEDED]"
-              } rounded-full px-3 py-1.5`}
+              className={`text-xs font-medium ${filter?.filter == "24hours"
+                ? "bg-[#FF204E]  text-white"
+                : "text-black bg-[#EDEDED]"
+                } rounded-full px-3 py-1.5`}
             >
               24 Hours
             </button>

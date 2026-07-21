@@ -89,7 +89,7 @@ const SubscriberDetails = () => {
   return (
     <div>
       <SubscriberProfile data={data} loading={dataLoading} />
-      <SubscriberServices data={data} loading={dataLoading} />
+      <SubscriberServices data={data} loading={dataLoading} getData={getData} />
       <PreviousSubscriptions
         data={prevSubscription}
         loading={prevSubscriptionLoading}

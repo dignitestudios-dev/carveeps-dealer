@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import List from "./List";
 import WithdrawModal from "./WithdrawModal";
 
-const TransactionHistory = ({ setUpdate }) => {
+const TransactionHistory = ({ payoutMode, setUpdate }) => {
   const [showModal, setShowModal] = useState(false);
   const handleShowModal = () => {
     setShowModal(!showModal);
@@ -18,12 +18,14 @@ const TransactionHistory = ({ setUpdate }) => {
             made.
           </p>
         </div>
-        <button
-          className="bg-[#FF204E] text-white w-[118px] rounded-lg text-[12px] font-semibold py-3"
-          onClick={handleShowModal}
-        >
-          Withdraw
-        </button>
+        {payoutMode !== "automatic" && payoutMode !== "auto" && (
+          <button
+            className="bg-[#FF204E] text-white w-[118px] rounded-lg text-[12px] font-semibold py-3"
+            onClick={handleShowModal}
+          >
+            Withdraw
+          </button>
+        )}
         <WithdrawModal
           showModal={showModal}
           onclick={handleShowModal}
