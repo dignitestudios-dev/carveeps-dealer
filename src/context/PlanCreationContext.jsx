@@ -25,6 +25,10 @@ const PlanCreationContextProvider = ({ children }) => {
     setSalesPerson,
     price,
     setPrice,
+    planType,
+    setPlanType,
+    isOneTime,
+    setIsOneTime,
     state,
     setState,
     subscription,
@@ -45,7 +49,7 @@ const PlanCreationContextProvider = ({ children }) => {
         setError("Plan Description cannot be left empty.");
       } else if (duration == "") {
         setError("Plan Duration must be selected.");
-      } else if (price == "") {
+      } else if (planType === "paid" && price == "") {
         setError("Plan Price cannot be left empty.");
       } else if (salesPerson == "" || salesPerson == null) {
         setError("Sales Person must be selected.");
@@ -59,7 +63,7 @@ const PlanCreationContextProvider = ({ children }) => {
             `${baseUrl}/dealership/subscription`,
             {
               name: planName,
-              price: price,
+              price: planType === "free" ? 0 : price,
               description: planDesc,
               interval:
                 duration == "year"
@@ -74,6 +78,8 @@ const PlanCreationContextProvider = ({ children }) => {
                   ? 6
                   : duration == "month" && 1,
               salesPersonId: salesPerson,
+              planType: planType,
+              isOneTime: planType === "free" ? isOneTime : false,
             },
             { headers }
           )
@@ -253,6 +259,10 @@ const PlanCreationContextProvider = ({ children }) => {
         setSalesPerson,
         price,
         setPrice,
+        planType,
+        setPlanType,
+        isOneTime,
+        setIsOneTime,
         createPlan,
         state,
         setState,

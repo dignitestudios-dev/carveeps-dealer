@@ -28,6 +28,8 @@ const GlobalContextProvider = ({ children }) => {
   const [planDesc, setPlanDesc] = useState("");
   const [price, setPrice] = useState("");
   const [duration, setDuration] = useState("");
+  const [planType, setPlanType] = useState("paid");
+  const [isOneTime, setIsOneTime] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const [selectedServices, setSelectedServices] = useState([]);
@@ -53,6 +55,8 @@ const GlobalContextProvider = ({ children }) => {
     setSalesPerson(null);
     setPlanDesc("");
     setPrice("");
+    setPlanType("paid");
+    setIsOneTime(false);
     setSelectedServices([]);
     setSendServices([]);
     setActiveLink(name);
@@ -208,6 +212,10 @@ const GlobalContextProvider = ({ children }) => {
         setSalesPerson,
         price,
         setPrice,
+        planType,
+        setPlanType,
+        isOneTime,
+        setIsOneTime,
         state,
         setState,
         subscription,

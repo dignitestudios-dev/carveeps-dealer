@@ -120,13 +120,30 @@ const PackageCard = ({ plan, setUpdate }) => {
                 {plan?.salesPerson?.name}
               </span>
             </div>
-            <div className="w-[150px] py-1.5 rounded-full text-center text-white text-sm font-semibold bg-[#C20028]">
-              {plan?.name}
+            <div className="flex items-center gap-2">
+              <div className="w-[150px] py-1.5 rounded-full text-center text-white text-sm font-semibold bg-[#C20028]">
+                {plan?.name}
+              </div>
+              <span
+                className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                  plan?.planType === "free"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-blue-100 text-blue-700"
+                }`}
+              >
+                {plan?.planType === "free" ? "Free" : "Paid"}
+              </span>
             </div>
           </div>
           <h1 className="text-[40px] font-bold relative">
-            <sup className="text-xs font-normal absolute top-4 -left-2">$</sup>
-            {plan?.price}
+            {plan?.planType === "free" ? (
+              "Free"
+            ) : (
+              <>
+                <sup className="text-xs font-normal absolute top-4 -left-2">$</sup>
+                {plan?.price}
+              </>
+            )}
             <sub className="text-xs font-normal">/{plan?.interval}</sub>
           </h1>
         </div>

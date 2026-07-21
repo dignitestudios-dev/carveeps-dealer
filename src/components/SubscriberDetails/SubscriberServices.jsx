@@ -158,7 +158,7 @@ const SubscriberServices = ({ data, loading, getData }) => {
       setAutoRenewLoading(false);
     }
   }
-
+  console.log(data?.subscriptionPlan?.planType, "PlanTYpe===>")
   return loading ? (
     <div className="w-full mt-4 p-6 bg-white rounded-[18px] flex flex-col gap-6 animate-pulse">
       <div className="w-full flex items-start lg:items-center justify-between flex-col lg:flex-row gap-6">
@@ -225,7 +225,9 @@ const SubscriberServices = ({ data, loading, getData }) => {
 
             <div className="space-y-1">
               <p className="text-white/80 text-sm">
-                Price: {data?.subscriptionPlan?.price || tempData?.subscriptionPlan?.price}
+                {(data?.subscriptionPlan?.planType || tempData?.subscriptionPlan?.planType) === "free"
+                  ? "Free Plan"
+                  : `Price: ${data?.subscriptionPlan?.price || tempData?.subscriptionPlan?.price}`}
               </p>
               {/* <p className="text-white/70 text-xs">
                 Next billing: {tempData?.subscriptionPlan?.nextBilling}
@@ -235,29 +237,32 @@ const SubscriberServices = ({ data, loading, getData }) => {
 
           {/* Action Button */}
           <div className="flex gap-3">
-            {(data?.status || tempData?.status) === "paid" && (
-              <button
-                onClick={() => setRefundModal(true)}
-                className="flex-1 bg-gray-100 hover:bg-gray-200 transition-colors rounded-xl py-3 text-sm font-semibold text-gray-800 flex items-center justify-center"
-              >
-                Refund
-              </button>
+            {data?.subscriptionPlan?.planType !== "free" && (
+              <>
+                {(data?.status || tempData?.status) === "paid" && (
+                  <button
+                    onClick={() => setRefundModal(true)}
+                    className="flex-1 bg-gray-100 hover:bg-gray-200 transition-colors rounded-xl py-3 text-sm font-semibold text-gray-800 flex items-center justify-center"
+                  >
+                    Refund
+                  </button>
+                )}
+                <button
+                  onClick={handleAutoRenewOff}
+                  disabled={autoRenewLoading || data?.cancelAtPeriodEnd === true}
+                  className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium transition ${autoRenewLoading || data?.cancelAtPeriodEnd === true
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-amber-500 hover:bg-amber-600 text-white"
+                    }`}
+                >
+                  {autoRenewLoading
+                    ? "Loading..."
+                    : data?.cancelAtPeriodEnd === true
+                      ? "Auto-Renewal Off"
+                      : "Turn Off Auto-Renewal"}
+                </button>
+              </>
             )}
-
-            <button
-              onClick={handleAutoRenewOff}
-              disabled={autoRenewLoading || data?.cancelAtPeriodEnd === true}
-              className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium transition ${autoRenewLoading || data?.cancelAtPeriodEnd === true
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-amber-500 hover:bg-amber-600 text-white"
-                }`}
-            >
-              {autoRenewLoading
-                ? "Loading..."
-                : data?.cancelAtPeriodEnd === true
-                  ? "Auto-Renewal Off"
-                  : "Turn Off Auto-Renewal"}
-            </button>
           </div>
         </div>
 

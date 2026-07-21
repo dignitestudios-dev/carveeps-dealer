@@ -188,10 +188,16 @@ const SubscriptionForm = () => {
               {formData?.planName ? formData?.planName : "Plan Name"}
             </div>
             <h1 className="text-[48px] font-bold relative">
-              <sup className="text-base font-normal absolute top-4 -left-2">
-                $
-              </sup>
-              {formData?.price ? formData?.price : "00"}
+              {formData?.planType === "free" ? (
+                "Free"
+              ) : (
+                <>
+                  <sup className="text-base font-normal absolute top-4 -left-2">
+                    $
+                  </sup>
+                  {formData?.price ? formData?.price : "00"}
+                </>
+              )}
               <sub className="text-sm font-normal">
                 /
                 {formData?.duration == "year"
