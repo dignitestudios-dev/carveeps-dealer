@@ -110,8 +110,9 @@ const PackageCard = ({ plan, setUpdate }) => {
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2">
               <div className="w-[28px] h-[28px] bg-red-200 flex items-center justify-center rounded-md">
+                {plan?.salesPerson?.logo}
                 <img
-                  src={plan?.dealership?.logo}
+                  src={plan?.salesPerson?.logo}
                   alt="dealership"
                   className="w-full h-full rounded-md"
                 />
@@ -125,11 +126,10 @@ const PackageCard = ({ plan, setUpdate }) => {
                 {plan?.name}
               </div>
               <span
-                className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                  plan?.planType === "free"
-                    ? "bg-green-100 text-green-700"
-                    : "bg-blue-100 text-blue-700"
-                }`}
+                className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${plan?.planType === "free"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-blue-100 text-blue-700"
+                  }`}
               >
                 {plan?.planType === "free" ? "Free" : "Paid"}
               </span>
