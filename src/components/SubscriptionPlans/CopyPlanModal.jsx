@@ -85,7 +85,7 @@ const CopyPlanModal = ({ showModal, setShowModal, id, setUpdate }) => {
       setShowModal(false);
     }
   };
-
+console.log(team,"team")
   return (
     <>
       {showModal && (

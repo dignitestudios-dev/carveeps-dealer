@@ -63,6 +63,14 @@ const GlobalContextProvider = ({ children }) => {
   };
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [permissions, setPermissions] = useState(() => {
+    try {
+      const stored = Cookies.get("permissions");
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
   const [showModal, setShowModal] = useState(true);
 
   const handleShowModal = () => {
@@ -180,6 +188,8 @@ const GlobalContextProvider = ({ children }) => {
         navigateToLink,
         isAuthenticated,
         setIsAuthenticated,
+        permissions,
+        setPermissions,
         showModal,
         setShowModal,
         setReports,

@@ -36,6 +36,8 @@ const Sidebar = () => {
     isAuthenticated,
     reports,
     setReports,
+    permissions,
+    setPermissions,
   } = useContext(GlobalContext);
 
   const navigateToLogin = () => {
@@ -44,6 +46,11 @@ const Sidebar = () => {
     Cookies.remove("isStripeProfileCompleted");
     Cookies.remove("isBankAccountAdded");
     Cookies.remove("isAccessKeyAdded");
+    Cookies.remove("permissions");
+    Cookies.remove("userRole");
+    if (setPermissions) {
+      setPermissions([]);
+    }
 
     navigateToLink("/login", "Login");
   };
@@ -51,168 +58,194 @@ const Sidebar = () => {
   return (
     <>
       <div className="w-full z-[100000000] lg:px-4 flex flex-col items-start gap-y-1">
-        <button
-          onClick={() => navigateToLink("/dashboard", "Dashboard")}
-          className={`w-full h-12 ${
-            activeLink === "Dashboard"
-              ? "bg-[#FF204E] text-white font-semibold"
-              : "text-[#7C7C7C] bg-transparent font-semibold"
-          } rounded-xl px-5 flex justify-start items-center gap-3 `}
-        >
-          <LuLayoutDashboard className="text-xl" />
-          <span className="text-sm">Dashboard</span>
-        </button>
-
-        <button
-          onClick={() => navigateToLink("/sales-team", "Sales Team")}
-          className={`w-full h-12 ${
-            activeLink === "Sales Team"
-              ? "bg-[#FF204E] text-white font-semibold"
-              : "text-[#7C7C7C] bg-transparent font-semibold"
-          } rounded-xl px-5 flex justify-start items-center gap-3 `}
-        >
-          <AiOutlineTeam className="text-xl" />
-          <span className="text-sm">Sales Team</span>
-        </button>
-
-        <div className="w-full relative">
+        {permissions.includes("dashboard") && (
           <button
-            onClick={() => {
-              navigateToLink("/reports", "Reports");
-              setReports(true);
-            }}
+            onClick={() => navigateToLink("/dashboard", "Dashboard")}
             className={`w-full h-12 ${
-              activeLink === "Reports"
+              activeLink === "Dashboard"
                 ? "bg-[#FF204E] text-white font-semibold"
                 : "text-[#7C7C7C] bg-transparent font-semibold"
             } rounded-xl px-5 flex justify-start items-center gap-3 `}
           >
-            <MdOutlineAnalytics className="text-xl" />
-            <span className="text-sm font-semibold flex items-center gap-1">
-              Reports{" "}
-              {reports ? (
-                <MdKeyboardArrowDown className="text-base" />
-              ) : (
-                <MdKeyboardArrowUp className="text-base" />
-              )}
-            </span>
+            <LuLayoutDashboard className="text-xl" />
+            <span className="text-sm">Dashboard</span>
           </button>
-          {reports && isAuthenticated ? (
-            <div className="flex flex-col gap-1 pl-[54px] items-start">
-              <button
-                onClick={() => {
-                  navigateToLink("/reports/revenue-analysis", "Reports");
-                  setReports(true);
-                }}
-                className="text-[13px] text-[#7C7C7C] font-semibold"
-              >
-                Revenue Analysis
-              </button>
-              <button
-                onClick={() => {
-                  navigateToLink("/reports/subscribers-report", "Reports");
-                  setReports(true);
-                }}
-                className="text-[13px] text-[#7C7C7C] font-semibold"
-              >
-                Subscribers Report
-              </button>
-              <button
-                onClick={() => {
-                  navigateToLink("/reports/subscription-bought", "Reports");
-                  setReports(true);
-                }}
-                className="text-[13px] text-[#7C7C7C] font-semibold"
-              >
-                Subscription Bought
-              </button>
-            </div>
-          ) : (
-            <></>
-          )}
-        </div>
-        <button
-          onClick={() => navigateToLink("/payment-gateway", "Payment Gateway")}
-          className={`w-full h-12 ${
-            activeLink === "Payment Gateway"
-              ? "bg-[#FF204E] text-white font-semibold"
-              : "text-[#7C7C7C] bg-transparent font-semibold"
-          } rounded-xl px-5 flex justify-start items-center gap-3 `}
-        >
-          <HiOutlineCreditCard className="text-xl" />
-          <span className="text-sm">Payment Gateway</span>
-        </button>
-        <button
-          onClick={() => navigateToLink("/subscription-plans", "Subscription")}
-          className={`w-full h-12 ${
-            activeLink === "Subscription"
-              ? "bg-[#FF204E] text-white font-semibold"
-              : "text-[#7C7C7C] bg-transparent font-semibold"
-          } rounded-xl px-5 flex justify-start items-center gap-3 `}
-        >
-          <RiMoneyDollarCircleLine className="text-xl" />
-          <span className="text-sm">Subscriptions</span>
-        </button>
-        {/* <button
-          onClick={() =>
-            navigateToLink("/system-notifications", "Notifications")
-          }
-          className={`w-full h-12 ${
-            activeLink === "Notifications"
-              ? "bg-[#FF204E] text-white font-semibold"
-              : "text-[#7C7C7C] bg-transparent font-semibold"
-          } rounded-xl px-5 flex justify-start items-center gap-3 `}
-        >
-          <IoMdNotificationsOutline className="text-xl" />
-          <span className="text-sm">Notifications</span>
-        </button> */}
-        <button
-          onClick={() => navigateToLink("/settings/notifications", "Settings")}
-          className={`w-full h-12 ${
-            activeLink === "Settings"
-              ? "bg-[#FF204E] text-white font-semibold"
-              : "text-[#7C7C7C] bg-transparent font-semibold"
-          } rounded-xl px-5 flex justify-start items-center gap-3 `}
-        >
-          <CiSettings className="text-xl" />
-          <span className="text-sm">Settings</span>
-        </button>
-        <button
-          onClick={() => navigateToLink("/profile", "Profile")}
-          className={`w-full h-12 ${
-            activeLink === "Profile"
-              ? "bg-[#FF204E] text-white font-semibold"
-              : "text-[#7C7C7C] bg-transparent font-semibold"
-          } rounded-xl px-5 flex justify-start items-center gap-3 `}
-        >
-          <LuUserRound className="text-xl" />
-          <span className="text-sm">Profile</span>
-        </button>
-        <button
-          onClick={() => navigateToLink("/support-tickets", "support-tickets")}
-          className={`w-full h-12 ${
-            activeLink === "support-tickets"
-              ? "bg-[#FF204E] text-white font-semibold"
-              : "text-[#7C7C7C] bg-transparent font-semibold"
-          } rounded-xl px-5 flex justify-start items-center gap-3 `}
-        >
-          <TiTicket className="text-xl" />
-          <span className="text-sm">Support Tickets</span>
-        </button>
+        )}
 
-        <button
-          onClick={() =>
-            navigateToLink("/send-notifications", "send-notifications")
-          }
-          className={`w-full h-12 ${
-            activeLink === "send-notifications"
-              ? "bg-[#FF204E] text-white font-semibold"
-              : "text-[#7C7C7C] bg-transparent font-semibold"
-          } rounded-xl px-5 flex justify-start items-center gap-3 `}
-        >
-          <MdOutlineNotifications className="text-xl" />
-          <span className="text-sm">Notifications</span>
-        </button>
+        {permissions.includes("sales-team") && (
+          <button
+            onClick={() => navigateToLink("/sales-team", "Sales Team")}
+            className={`w-full h-12 ${
+              activeLink === "Sales Team"
+                ? "bg-[#FF204E] text-white font-semibold"
+                : "text-[#7C7C7C] bg-transparent font-semibold"
+            } rounded-xl px-5 flex justify-start items-center gap-3 `}
+          >
+            <AiOutlineTeam className="text-xl" />
+            <span className="text-sm">Sales Team</span>
+          </button>
+        )}
+
+        {permissions.includes("reports") && (
+          <div className="w-full relative">
+            <button
+              onClick={() => {
+                navigateToLink("/reports", "Reports");
+                setReports(true);
+              }}
+              className={`w-full h-12 ${
+                activeLink === "Reports"
+                  ? "bg-[#FF204E] text-white font-semibold"
+                  : "text-[#7C7C7C] bg-transparent font-semibold"
+              } rounded-xl px-5 flex justify-start items-center gap-3 `}
+            >
+              <MdOutlineAnalytics className="text-xl" />
+              <span className="text-sm font-semibold flex items-center gap-1">
+                Reports{" "}
+                {reports ? (
+                  <MdKeyboardArrowDown className="text-base" />
+                ) : (
+                  <MdKeyboardArrowUp className="text-base" />
+                )}
+              </span>
+            </button>
+            {reports && isAuthenticated ? (
+              <div className="flex flex-col gap-1 pl-[54px] items-start">
+                <button
+                  onClick={() => {
+                    navigateToLink("/reports/revenue-analysis", "Reports");
+                    setReports(true);
+                  }}
+                  className="text-[13px] text-[#7C7C7C] font-semibold"
+                >
+                  Revenue Analysis
+                </button>
+                <button
+                  onClick={() => {
+                    navigateToLink("/reports/subscribers-report", "Reports");
+                    setReports(true);
+                  }}
+                  className="text-[13px] text-[#7C7C7C] font-semibold"
+                >
+                  Subscribers Report
+                </button>
+                <button
+                  onClick={() => {
+                    navigateToLink("/reports/subscription-bought", "Reports");
+                    setReports(true);
+                  }}
+                  className="text-[13px] text-[#7C7C7C] font-semibold"
+                >
+                  Subscription Bought
+                </button>
+              </div>
+            ) : (
+              <></>
+            )}
+          </div>
+        )}
+
+        {permissions.includes("payment-gateway") && (
+          <button
+            onClick={() => navigateToLink("/payment-gateway", "Payment Gateway")}
+            className={`w-full h-12 ${
+              activeLink === "Payment Gateway"
+                ? "bg-[#FF204E] text-white font-semibold"
+                : "text-[#7C7C7C] bg-transparent font-semibold"
+            } rounded-xl px-5 flex justify-start items-center gap-3 `}
+          >
+            <HiOutlineCreditCard className="text-xl" />
+            <span className="text-sm">Payment Gateway</span>
+          </button>
+        )}
+
+        {permissions.includes("subscription-plans") && (
+          <button
+            onClick={() => navigateToLink("/subscription-plans", "Subscription")}
+            className={`w-full h-12 ${
+              activeLink === "Subscription"
+                ? "bg-[#FF204E] text-white font-semibold"
+                : "text-[#7C7C7C] bg-transparent font-semibold"
+            } rounded-xl px-5 flex justify-start items-center gap-3 `}
+          >
+            <RiMoneyDollarCircleLine className="text-xl" />
+            <span className="text-sm">Subscriptions</span>
+          </button>
+        )}
+
+        {permissions.includes("settings") && (
+          <button
+            onClick={() => navigateToLink("/settings/notifications", "Settings")}
+            className={`w-full h-12 ${
+              activeLink === "Settings"
+                ? "bg-[#FF204E] text-white font-semibold"
+                : "text-[#7C7C7C] bg-transparent font-semibold"
+            } rounded-xl px-5 flex justify-start items-center gap-3 `}
+          >
+            <CiSettings className="text-xl" />
+            <span className="text-sm">Settings</span>
+          </button>
+        )}
+
+        {permissions.includes("profile") && (
+          <button
+            onClick={() => navigateToLink("/profile", "Profile")}
+            className={`w-full h-12 ${
+              activeLink === "Profile"
+                ? "bg-[#FF204E] text-white font-semibold"
+                : "text-[#7C7C7C] bg-transparent font-semibold"
+            } rounded-xl px-5 flex justify-start items-center gap-3 `}
+          >
+            <LuUserRound className="text-xl" />
+            <span className="text-sm">Profile</span>
+          </button>
+        )}
+
+        {permissions.includes("support-tickets") && (
+          <button
+            onClick={() => navigateToLink("/support-tickets", "support-tickets")}
+            className={`w-full h-12 ${
+              activeLink === "support-tickets"
+                ? "bg-[#FF204E] text-white font-semibold"
+                : "text-[#7C7C7C] bg-transparent font-semibold"
+            } rounded-xl px-5 flex justify-start items-center gap-3 `}
+          >
+            <TiTicket className="text-xl" />
+            <span className="text-sm">Support Tickets</span>
+          </button>
+        )}
+
+        {permissions.includes("send-notifications") && (
+          <button
+            onClick={() =>
+              navigateToLink("/send-notifications", "send-notifications")
+            }
+            className={`w-full h-12 ${
+              activeLink === "send-notifications"
+                ? "bg-[#FF204E] text-white font-semibold"
+                : "text-[#7C7C7C] bg-transparent font-semibold"
+            } rounded-xl px-5 flex justify-start items-center gap-3 `}
+          >
+            <MdOutlineNotifications className="text-xl" />
+            <span className="text-sm">Notifications</span>
+          </button>
+        )}
+
+        {/* Audit Logs tab in Sidebar - ONLY for the Dealer */}
+        {Cookies.get("userRole") === "dealership" && (
+          <button
+            onClick={() => navigateToLink("/audit-logs", "Audit Logs")}
+            className={`w-full h-12 ${
+              activeLink === "Audit Logs"
+                ? "bg-[#FF204E] text-white font-semibold"
+                : "text-[#7C7C7C] bg-transparent font-semibold"
+            } rounded-xl px-5 flex justify-start items-center gap-3 `}
+          >
+            <LuLayoutDashboard className="text-xl" />
+            <span className="text-sm">Audit Logs</span>
+          </button>
+        )}
+
         <button
           onClick={() => navigateToLogin()}
           className="w-full h-12 font-semibold hover:bg-[#FF204E] transition-all duration-300 hover:text-white text-[#7C7C7C] rounded-xl px-5 flex justify-start items-center gap-3"

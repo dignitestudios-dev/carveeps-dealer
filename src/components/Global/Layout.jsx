@@ -30,7 +30,28 @@ const Layout = ({ pages }) => {
     baseUrl,
     setShow,
     setNewUpdate,
+    permissions,
   } = useContext(GlobalContext);
+
+  const path = location.pathname;
+  let requiredPermission = null;
+  if (path.startsWith("/dashboard")) requiredPermission = "dashboard";
+  else if (path.startsWith("/sales-team")) requiredPermission = "sales-team";
+  else if (path.startsWith("/reports")) requiredPermission = "reports";
+  else if (path.startsWith("/payment-gateway")) requiredPermission = "payment-gateway";
+  else if (path.startsWith("/subscription") || path.startsWith("/create-subscription-plan") || path.startsWith("/all-subscriptions")) requiredPermission = "subscription-plans";
+  else if (path.startsWith("/settings")) requiredPermission = "settings";
+  else if (path.startsWith("/profile")) requiredPermission = "profile";
+  else if (path.startsWith("/support-tickets")) requiredPermission = "support-tickets";
+  else if (path.startsWith("/send-notifications")) requiredPermission = "send-notifications";
+
+  const token = Cookies.get("token");
+  const userRole = Cookies.get("userRole");
+  let hasAccess = !token || !requiredPermission || (permissions && permissions.includes(requiredPermission));
+
+  if (path.startsWith("/audit-logs") && userRole !== "dealership") {
+    hasAccess = false;
+  }
 
   useEffect(() => {
     setTimeout(() => {
@@ -224,7 +245,19 @@ const Layout = ({ pages }) => {
             </div>
           )}
         </div>
-        <div className={`w-full p-6 ${styles.bodyBg}`}>{pages}</div>
+        <div className={`w-full p-6 ${styles.bodyBg}`}>
+          {hasAccess ? (
+            pages
+          ) : (
+            <div className="w-full h-[60vh] flex flex-col items-center justify-center p-8 text-center bg-white rounded-2xl border border-dashed border-gray-200 shadow-sm mt-4">
+              <div className="text-red-500 text-6xl mb-4">⚠️</div>
+              <h2 className="text-xl font-bold text-gray-800">Access Denied</h2>
+              <p className="text-sm text-gray-500 mt-2 max-w-sm">
+                You do not have permission to access this module. Please contact your administrator.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

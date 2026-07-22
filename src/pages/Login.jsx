@@ -14,7 +14,7 @@ import BtnLoader from "../components/Global/BtnLoader";
 
 const Login = () => {
   const [showPass, setShowPass] = useState(false);
-  const { navigateToLink, baseUrl, error, setError, fetchToken } =
+  const { navigateToLink, baseUrl, error, setError, fetchToken, setPermissions } =
     useContext(GlobalContext);
 
   const [isPassVisible, setIsPassVisible] = useState(false);
@@ -66,6 +66,34 @@ const Login = () => {
             if (response?.data?.data?.token) {
               const data = response?.data?.data;
               Cookies.set("token", data?.token, { expires: 7 });
+
+              if (data?.staff) {
+                const staffRole = typeof data?.staff?.role === "object" ? data?.staff?.role?.name : data?.staff?.role || "staff";
+                const staffPermissions = data?.staff?.permissions || [];
+                Cookies.set("userRole", staffRole, { expires: 7 });
+                Cookies.set("permissions", JSON.stringify(staffPermissions), { expires: 7 });
+                setPermissions(staffPermissions);
+
+                Cookies.set("isProfileCompleted", "true", { expires: 7 });
+                Cookies.set("isStripeProfileCompleted", "true", { expires: 7 });
+                Cookies.set("isAccessKeyAdded", "true", { expires: 7 });
+
+                Cookies?.set("dealershipName", data?.staff?.name);
+                Cookies?.set("dealershipEmail", data?.staff?.email);
+
+                fetchToken().then(() => {
+                  navigateToLink("/dashboard", "Dashboard");
+                });
+                setLoading(false);
+                return;
+              }
+
+              // Otherwise it is a standard dealer login:
+              const dealerPermissions = ["dashboard", "sales-team", "reports", "payment-gateway", "subscription-plans", "settings", "profile", "support-tickets", "send-notifications"];
+              Cookies.set("userRole", "dealership", { expires: 7 });
+              Cookies.set("permissions", JSON.stringify(dealerPermissions), { expires: 7 });
+              setPermissions(dealerPermissions);
+
               Cookies.set("isProfileCompleted", data?.isProfileCompleted, {
                 expires: 7,
               });

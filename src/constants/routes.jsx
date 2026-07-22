@@ -40,8 +40,14 @@ import ChangePassUpdateEmail from "../pages/ChangePassUpdateEmail";
 import AccessKeyUpdateKey from "../pages/AccessKeyUpdateKey";
 import ChangePassUpdatePass from "../pages/ChangePassUpdatePass";
 import SendNotifications from "../pages/SendNotifications";
+import AuditLogs from "../pages/AuditLogs";
 
 export const routes = [
+  {
+    title: "Audit Logs Page",
+    url: "/audit-logs",
+    page: <Layout pages={<AuditLogs />} />,
+  },
   {
     title: "Splash Screen 1",
     url: "/",
