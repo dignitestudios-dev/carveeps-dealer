@@ -126,10 +126,11 @@ const PackageCard = ({ plan, setUpdate }) => {
                 {plan?.name}
               </div>
               <span
-                className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${plan?.planType === "free"
-                  ? "bg-green-100 text-green-700"
-                  : "bg-blue-100 text-blue-700"
-                  }`}
+                className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                  plan?.planType === "free"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-blue-100 text-blue-700"
+                }`}
               >
                 {plan?.planType === "free" ? "Free" : "Paid"}
               </span>

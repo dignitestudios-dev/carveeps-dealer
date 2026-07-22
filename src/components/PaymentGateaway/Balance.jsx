@@ -137,6 +137,8 @@ const Balance = ({ data, dataLoading, getAccountData, update, setUpdate }) => {
     }
   }
 
+  const isAuto = data?.payoutMode === "automatic" || data?.payoutMode === "auto";
+
   return dataLoading ? (
     <div className="bg-white rounded-t-[18px] p-6 border-b">
       <div className="flex items-start justify-between gap-6 flex-wrap animate-pulse">
@@ -214,34 +216,42 @@ const Balance = ({ data, dataLoading, getAccountData, update, setUpdate }) => {
           <div className="flex flex-col">
             <span className="text-sm font-semibold text-gray-800">Payout Mode</span>
             <span className="text-xs text-gray-500 mt-0.5">
-              {data?.payoutMode === "automatic" || data?.payoutMode === "auto"
+              {isAuto
                 ? "Automatic withdrawals are enabled"
                 : "Withdraw funds manually at any time"}
             </span>
           </div>
-          <div className="flex items-center gap-2 mt-2 sm:mt-0">
-            <button
-              onClick={() => handlePayoutModeChange("manual")}
-              disabled={payoutModeLoading}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                data?.payoutMode === "manual"
-                  ? "bg-[#FF204E] text-white shadow-sm"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+          <div className="flex items-center gap-3 mt-2 sm:mt-0 select-none">
+            <span
+              onClick={() => !payoutModeLoading && isAuto && handlePayoutModeChange("manual")}
+              className={`text-xs font-semibold cursor-pointer transition-colors duration-200 ${
+                !isAuto ? "text-gray-800" : "text-gray-400 hover:text-gray-600"
               }`}
             >
               Manual
-            </button>
+            </span>
             <button
-              onClick={() => handlePayoutModeChange("automatic")}
+              onClick={() => handlePayoutModeChange(isAuto ? "manual" : "automatic")}
               disabled={payoutModeLoading}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                data?.payoutMode === "automatic" || data?.payoutMode === "auto"
-                  ? "bg-[#FF204E] text-white shadow-sm"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 ${
+                isAuto ? "bg-[#FF204E]" : "bg-gray-300"
+              } ${payoutModeLoading ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
+            >
+              <span className="sr-only">Toggle Payout Mode</span>
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
+                  isAuto ? "translate-x-6" : "translate-x-1"
+                }`}
+              />
+            </button>
+            <span
+              onClick={() => !payoutModeLoading && !isAuto && handlePayoutModeChange("automatic")}
+              className={`text-xs font-semibold cursor-pointer transition-colors duration-200 ${
+                isAuto ? "text-gray-800" : "text-gray-400 hover:text-gray-600"
               }`}
             >
               Automatic
-            </button>
+            </span>
           </div>
         </div>
       </div>
