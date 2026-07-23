@@ -4,11 +4,15 @@ import Cookies from "js-cookie";
 import { GlobalContext } from "../context/GlobalContext";
 import { styles } from "../styles/styles";
 import BtnLoader from "../components/Global/BtnLoader";
+import { IoSearchOutline } from "react-icons/io5";
 
 const AuditLogs = () => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [from, setFrom] = useState(0);
+  const [search, setSearch] = useState("");
+  const [roles, setRoles] = useState([]);
+  const [selectedRole, setSelectedRole] = useState("");
   const threshold = 10;
   const { baseUrl, navigate, setError } = useContext(GlobalContext);
 
@@ -25,7 +29,10 @@ const AuditLogs = () => {
     };
 
     axios
-      .get(`${baseUrl}/dealership/audit-logs?from=${from}&threshold=${threshold}`, { headers })
+      .get(
+        `${baseUrl}/dealership/audit-logs?from=${from}&threshold=${threshold}&search=${search}&role=${selectedRole}`,
+        { headers }
+      )
       .then((response) => {
         setLogs(response?.data?.data || response?.data || []);
         setLoading(false);
@@ -38,8 +45,35 @@ const AuditLogs = () => {
   };
 
   useEffect(() => {
+    const token = Cookies.get("token");
+    if (token) {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+      axios
+        .get(`${baseUrl}/dealership/roles`, { headers })
+        .then((response) => {
+          setRoles(response?.data?.data || response?.data || []);
+        })
+        .catch((err) => {
+          console.error("Failed to fetch roles", err);
+        });
+    }
+  }, [baseUrl]);
+
+  useEffect(() => {
     fetchLogs();
-  }, [from]);
+  }, [from, search, selectedRole]);
+
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+    setFrom(0);
+  };
+
+  const handleRoleChange = (e) => {
+    setSelectedRole(e.target.value);
+    setFrom(0);
+  };
 
   const handleNext = () => {
     if (logs.length === threshold) {
@@ -133,9 +167,23 @@ const AuditLogs = () => {
     return role.charAt(0).toUpperCase() + role.slice(1);
   };
 
+  const getActorName = (log) => {
+    if (log?.staffName) return log.staffName;
+    if (log?.performedBy?.role === "dealership") return "Dealer";
+    return "Staff Member";
+  };
+
+  const getActorEmail = (log) => {
+    return log?.staffEmail || log?.performedBy?.email || "System";
+  };
+
+  const getActorRole = (log) => {
+    return log?.staffRole || log?.performedBy?.role || "N/A";
+  };
+
   return (
     <div className="w-[calc(100%+3rem)] min-h-[calc(100vh)] p-6 bg-white -m-6 flex flex-col justify-start">
-      <div className="flex items-center justify-between pb-6 border-b border-gray-100">
+      <div className="flex items-center justify-between pb-6 border-b border-gray-100 flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Activity Logs</h1>
           <p className="text-xs text-gray-500 mt-1">
@@ -153,6 +201,41 @@ const AuditLogs = () => {
         </button>
       </div>
 
+      <div className="w-full flex flex-col md:flex-row items-stretch md:items-center justify-start gap-4 mt-6">
+        <div className="w-full md:w-96 relative">
+          <input
+            type="text"
+            placeholder="Search activity logs..."
+            value={search}
+            onChange={handleSearchChange}
+            className="w-full h-[42px] rounded-full px-5 pr-12 outline-none border border-gray-200 text-sm text-gray-700 bg-gray-50/30 focus:bg-white focus:border-[#ff204e] transition-all"
+          />
+          <span className="w-8 h-8 absolute top-1.5 right-2 rounded-full text-md text-[#ff204e] flex items-center justify-center pointer-events-none">
+            <IoSearchOutline className="w-5 h-5" />
+          </span>
+        </div>
+
+        <div className="w-full md:w-48 relative">
+          <select
+            value={selectedRole}
+            onChange={handleRoleChange}
+            className="w-full h-[42px] rounded-full px-5 pr-10 outline-none border border-gray-200 text-sm text-gray-700 bg-gray-50/30 focus:bg-white focus:border-[#ff204e] transition-all appearance-none cursor-pointer"
+          >
+            <option value="">All Roles</option>
+            {roles.map((role) => (
+              <option key={role._id} value={role.name}>
+                {role.name}
+              </option>
+            ))}
+          </select>
+          <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-gray-500">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
       <div className="w-full mt-6 overflow-x-auto border border-gray-100 rounded-2xl shadow-sm">
         <table className="min-w-full divide-y divide-gray-100 bg-white">
           <thead className="bg-[#F7F7F7]">
@@ -164,7 +247,7 @@ const AuditLogs = () => {
                 Performed By
               </th>
               <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                IP Address
+                Role
               </th>
               <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                 Timestamp
@@ -206,24 +289,23 @@ const AuditLogs = () => {
                         >
                           {log.actionType || "Unknown"}
                         </span>
-                    
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex flex-col gap-1">
-                      <span className="text-sm text-gray-700 font-semibold">
-                        {log.performedBy?.email || "System"}
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-sm font-semibold text-gray-800">
+                        {getActorName(log)}
                       </span>
-                      <div>
-                        <span className="bg-gray-100 text-gray-600 border border-gray-200 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
-                          {formatRole(log.performedBy?.role)}
-                        </span>
-                      </div>
+                      <span className="text-xs text-gray-500 font-medium">
+                        {getActorEmail(log)}
+                      </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
-                    {formatIP(log.ipAddress)}
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="bg-gray-100 text-gray-600 border border-gray-200 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
+                      {formatRole(getActorRole(log))}
+                    </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
                     {log.createdAt ? new Date(log.createdAt).toLocaleString() : "N/A"}

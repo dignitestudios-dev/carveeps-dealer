@@ -121,7 +121,7 @@ const PackageCard = ({ plan, setUpdate }) => {
                 {plan?.salesPerson?.name}
               </span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <div className="w-[150px] py-1.5 rounded-full text-center text-white text-sm font-semibold bg-[#C20028]">
                 {plan?.name}
               </div>
@@ -134,6 +134,11 @@ const PackageCard = ({ plan, setUpdate }) => {
               >
                 {plan?.planType === "free" ? "Free" : "Paid"}
               </span>
+              {plan?.adminCommission !== undefined && plan?.adminCommission !== null && (
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-red-50 text-[#C20028] border border-red-100">
+                  {plan?.commissionType === "percentage" ? `${plan?.adminCommission}%` : `$${plan?.adminCommission}`} Commission
+                </span>
+              )}
             </div>
           </div>
           <h1 className="text-[40px] font-bold relative">

@@ -101,7 +101,9 @@ const ServiceRecordsList = () => {
       <div className="w-full bg-white rounded-[18px] p-6 flex flex-col items-start gap-6">
         <div className="w-full flex items-start lg:items-center justify-between flex-col lg:flex-row gap-6">
           <div className="w-[135px] h-[32px] flex items-center justify-center gap-1 text-white text-[13px] font-medium bg-[#C20028] rounded-full">
-            {prevData?.subscriptionPlan} <GoDotFill className="" />
+            {typeof prevData?.subscriptionPlan === "object"
+              ? prevData?.subscriptionPlan?.name
+              : prevData?.subscriptionPlan} <GoDotFill className="" />
           </div>
           <div className="lg:w-[506px] lg:h-[36px] flex items-center justify-between flex-wrap gap-6">
             <div className="flex flex-col text-center">

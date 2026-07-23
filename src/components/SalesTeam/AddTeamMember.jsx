@@ -15,7 +15,7 @@ const ALL_MODULES = [
   { key: "payment-gateway", label: "Payment Gateway" },
   { key: "subscription-plans", label: "Subscriptions" },
   // { key: "settings", label: "Settings" },
-  { key: "profile", label: "Profile" },
+  // { key: "profile", label: "Profile" },
   { key: "support-tickets", label: "Support Tickets" },
   { key: "send-notifications", label: "Notifications" }
 ];

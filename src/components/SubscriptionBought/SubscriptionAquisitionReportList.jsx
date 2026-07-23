@@ -159,7 +159,9 @@ const SubscriptionAquisitionReportList = () => {
       ? new Date(item?.date).toLocaleDateString("en-US") // Format as mm/dd/yyyy
       : "N/A",
     Name: item?.subscriberName || "N/A",
-    PlanName: item?.subscriptionPlan || "N/A",
+    PlanName: typeof item?.subscriptionPlan === "object"
+      ? item?.subscriptionPlan?.name
+      : item?.subscriptionPlan || "N/A",
     Duration:
       item?.interval == "year"
         ? "Yearly"
@@ -381,7 +383,9 @@ const SubscriptionAquisitionReportList = () => {
                       </div>
                       <div>
                         <p className="text-[11px] font-medium">
-                          {subscriber?.subscriptionPlan}
+                          {typeof subscriber?.subscriptionPlan === "object"
+                            ? subscriber?.subscriptionPlan?.name
+                            : subscriber?.subscriptionPlan}
                         </p>
                       </div>
                       <div>
@@ -450,7 +454,9 @@ const SubscriptionAquisitionReportList = () => {
                         Subscription Plan
                       </p>
                       <p className="text-[11px] font-medium">
-                        {subscriber?.subscriptionPlan}
+                        {typeof subscriber?.subscriptionPlan === "object"
+                          ? subscriber?.subscriptionPlan?.name
+                          : subscriber?.subscriptionPlan}
                       </p>
                     </div>
                     <div className="w-full flex items-center justify-between">

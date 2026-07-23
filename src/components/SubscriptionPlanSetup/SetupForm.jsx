@@ -27,7 +27,57 @@ const SetupForm = ({ team }) => {
     formData,
     setFormData,
     handleInputChange,
+    commissions,
   } = useContext(PlanCreationContext);
+
+  // Calculate commission description for UI display
+  let showCommissionInfo = false;
+  let commissionVal = "";
+  let commissionTypeLabel = "";
+
+  if (commissions && duration) {
+    showCommissionInfo = true;
+    if (planType === "free") {
+      commissionTypeLabel = "Fixed Amount";
+      const settings = commissions.freeCommissionSettings || {};
+      if (duration === "year") {
+        commissionVal = `$${settings.yearlyAmount ?? 45}`;
+      } else if (duration === "biannual") {
+        commissionVal = `$${settings.biannualAmount ?? 25}`;
+      } else if (duration === "month") {
+        commissionVal = `$${settings.monthlyAmount ?? 5}`;
+      } else {
+        showCommissionInfo = false;
+      }
+    } else {
+      const settings = commissions.commissionSettings || {};
+      const type = settings.commissionType || "percentage";
+      commissionTypeLabel = type === "percentage" ? "Percentage" : "Fixed Amount";
+      
+      let amount = 0;
+      if (duration === "year") {
+        amount = settings.yearlyAmount ?? 10;
+      } else if (duration === "biannual") {
+        amount = settings.biannualAmount ?? 10;
+      } else if (duration === "month") {
+        amount = settings.monthlyAmount ?? 10;
+      } else {
+        showCommissionInfo = false;
+      }
+
+      if (showCommissionInfo) {
+        if (type === "percentage") {
+          commissionVal = `${amount}%`;
+          if (price && !isNaN(parseFloat(price))) {
+            const calculatedCommissionCash = (parseFloat(price) * amount) / 100;
+            commissionVal += ` ($${calculatedCommissionCash.toFixed(2)})`;
+          }
+        } else {
+          commissionVal = `$${amount}`;
+        }
+      }
+    }
+  }
   const { salesPersonId } = useParams();
   console.log(salesPerson);
   return (
@@ -251,6 +301,24 @@ const SetupForm = ({ team }) => {
           Select the subscription option that suits you best
         </p>
       </div>
+
+      {showCommissionInfo && (
+        <div className="mx-2 lg:mx-6 p-4 rounded-xl border border-[#ff204e]/20 bg-[#ff204e]/[0.02] flex items-center justify-between gap-4 transition-all">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">
+              Admin Commission ({commissionTypeLabel})
+            </span>
+            <p className="text-xs text-gray-600">
+              The platform will deduct this commission amount from the payout.
+            </p>
+          </div>
+          <div className="text-right flex-shrink-0">
+            <span className="text-base font-extrabold text-[#ff204e]">
+              {commissionVal}
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -40,6 +40,27 @@ const PlanCreationContextProvider = ({ children }) => {
     setNewUpdate,
   } = useContext(GlobalContext);
 
+  const [commissions, setCommissions] = useState(null);
+
+  useEffect(() => {
+    const token = Cookies.get("token");
+    if (token) {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+      axios
+        .get(`${baseUrl}/dealership/commissions`, { headers })
+        .then((response) => {
+          if (response?.data?.success && response?.data?.data) {
+            setCommissions(response.data.data);
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to fetch commissions", err);
+        });
+    }
+  }, [baseUrl]);
+
   const createPlan = () => {
     const token = Cookies.get("token");
     if (token) {
@@ -280,6 +301,7 @@ const PlanCreationContextProvider = ({ children }) => {
         handleFrequencyChange,
         validateServices,
         addServicesToPlan,
+        commissions,
       }}
     >
       {children}

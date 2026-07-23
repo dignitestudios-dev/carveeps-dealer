@@ -141,7 +141,9 @@ const PreviousSubscriptions = ({ data, loading }) => {
                   </div>
                   <div>
                     <p className=" text-xs font-medium">
-                      {item?.subscriptionPlan}
+                      {typeof item?.subscriptionPlan === "object"
+                        ? item?.subscriptionPlan?.name
+                        : item?.subscriptionPlan}
                     </p>
                   </div>
                   <div>
@@ -197,7 +199,9 @@ const PreviousSubscriptions = ({ data, loading }) => {
                       Subscription Plan
                     </h1>
                     <p className="text-xs font-medium text-[#7c7c7c]">
-                      {item?.subscriptionPlan}
+                      {typeof item?.subscriptionPlan === "object"
+                        ? item?.subscriptionPlan?.name
+                        : item?.subscriptionPlan}
                     </p>
                   </div>
                   <div className="w-full flex items-start justify-between">
