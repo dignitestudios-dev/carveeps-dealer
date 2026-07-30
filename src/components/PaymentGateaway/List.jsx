@@ -39,23 +39,24 @@ const List = () => {
       const headers = {
         Authorization: `Bearer ${token}`,
       };
+
+      let endpoint = "";
+      if (activeTab === 1) {
+        endpoint = filter?.date == null
+          ? `${baseUrl}/dealership/transaction/received?filter=${filter?.filter}`
+          : `${baseUrl}/dealership/transaction/received?particularDate=${convertToDateFormat(filter?.date)}`;
+      } else if (activeTab === 2) {
+        endpoint = filter?.date == null
+          ? `${baseUrl}/dealership/transaction/withdraw?filter=${filter?.filter}`
+          : `${baseUrl}/dealership/transaction/withdraw?particularDate=${convertToDateFormat(filter?.date)}`;
+      } else if (activeTab === 3) {
+        endpoint = filter?.date == null
+          ? `${baseUrl}/dealership/transaction/refunded?filter=${filter?.filter}`
+          : `${baseUrl}/dealership/transaction/refunded?particularDate=${convertToDateFormat(filter?.date)}`;
+      }
+
       axios
-        .get(
-          activeTab == 1 && filter?.date == null
-            ? `${baseUrl}/dealership/transaction/received?filter=${filter?.filter}`
-            : activeTab !== 1 && filter?.date == null
-            ? `${baseUrl}/dealership/transaction/withdraw?filter=${filter?.filter}`
-            : activeTab == 1 && filter?.date !== null
-            ? `${baseUrl}/dealership/transaction/received?particularDate=${convertToDateFormat(
-                filter?.date
-              )}`
-            : `${baseUrl}/dealership/transaction/withdraw?particularDate=${convertToDateFormat(
-                filter?.date
-              )}`,
-          {
-            headers,
-          }
-        )
+        .get(endpoint, { headers })
         .then(
           (response) => {
             setData(response?.data?.data);
@@ -152,71 +153,94 @@ const List = () => {
   const dataToExport = data?.transactions?.map(
     activeTab == 2
       ? (item) => ({
-          Date: item?.createdAt
-            ? new Date(item?.createdAt).toLocaleDateString("en-US") // Format as mm/dd/yyyy
-            : "N/A",
-          TransactionID: item?.transactionId || "N/A",
+        Date: item?.createdAt
+          ? new Date(item?.createdAt).toLocaleDateString("en-US") // Format as mm/dd/yyyy
+          : "N/A",
+        TransactionID: item?.transactionId || "N/A",
 
-          Amount: item?.price || 0,
-        })
-      : (item) => ({
-          Date: item?.date
-            ? new Date(item?.date).toLocaleDateString("en-US") // Format as mm/dd/yyyy
-            : "N/A",
-          Name: item?.user?.name || "N/A",
-          PlanName: item?.subscriptionPlan?.name || "N/A",
-          Duration:
-            item?.subscriptionPlan?.interval == "year"
-              ? "Yearly"
-              : item?.subscriptionPlan?.interval == "month" &&
-                item?.subscriptionPlan?.intervalCount == 6
+        Amount: item?.price || 0,
+      })
+      : activeTab == 3
+      ? (item) => ({
+        Date: (item?.date || item?.createdAt)
+          ? new Date(item?.date || item?.createdAt).toLocaleDateString("en-US")
+          : "N/A",
+        Name: item?.user?.name || "N/A",
+        PlanName: item?.subscriptionPlan?.name || "N/A",
+        Duration:
+          item?.subscriptionPlan?.interval == "year"
+            ? "Yearly"
+            : item?.subscriptionPlan?.interval == "month" &&
+              item?.subscriptionPlan?.intervalCount == 6
               ? "BiAnnually"
               : "Monthly",
-          Amount: item?.subscriptionPlan?.price || 0,
-        })
+        RefundedAmount: item?.refundedAmount !== undefined ? item?.refundedAmount : item?.price || 0,
+      })
+      : (item) => ({
+        Date: item?.date
+          ? new Date(item?.date).toLocaleDateString("en-US") // Format as mm/dd/yyyy
+          : "N/A",
+        Name: item?.user?.name || "N/A",
+        PlanName: item?.subscriptionPlan?.name || "N/A",
+        Duration:
+          item?.subscriptionPlan?.interval == "year"
+            ? "Yearly"
+            : item?.subscriptionPlan?.interval == "month" &&
+              item?.subscriptionPlan?.intervalCount == 6
+              ? "BiAnnually"
+              : "Monthly",
+        Amount: item?.subscriptionPlan?.price || 0,
+      })
   );
 
   const dataWidths =
     activeTab == 2
       ? [
-          { wch: 15 }, // CreatedAt
-          { wch: 35 }, // Transaction ID
-          { wch: 10 }, // Price
-        ]
+        { wch: 15 }, // CreatedAt
+        { wch: 35 }, // Transaction ID
+        { wch: 10 }, // Price
+      ]
       : [
-          { wch: 15 }, // CreatedAt
-          { wch: 20 }, // Name
-          { wch: 25 }, // SubscriptionPlan
-          { wch: 10 }, // Interval
-          { wch: 10 }, // Price
-        ];
+        { wch: 15 }, // CreatedAt
+        { wch: 20 }, // Name
+        { wch: 25 }, // SubscriptionPlan
+        { wch: 10 }, // Interval
+        { wch: 15 }, // Amount / RefundedAmount
+      ];
 
   return (
     <div className="w-full ">
       <div className="flex gap-x-10 px-6 my-4">
         <button
           onClick={() => setActiveTab(1)}
-          className={`text-[13px] font-semibold ${
-            activeTab === 1
+          className={`text-[13px] font-semibold ${activeTab === 1
               ? "text-[#FF204E] border-b-2 border-[#FF204E]"
               : "text-[#0F0F0F]"
-          }`}
+            }`}
         >
           Received
         </button>
         <button
           onClick={() => setActiveTab(2)}
-          className={`text-[13px] font-semibold ${
-            activeTab === 2
+          className={`text-[13px] font-semibold ${activeTab === 2
               ? "text-[#FF204E] border-b-2 border-[#FF204E]"
               : "text-[#0F0F0F]"
-          }`}
+            }`}
         >
           Withdrawn
         </button>
+        <button
+          onClick={() => setActiveTab(3)}
+          className={`text-[13px] font-semibold ${activeTab === 3
+              ? "text-[#FF204E] border-b-2 border-[#FF204E]"
+              : "text-[#0F0F0F]"
+            }`}
+        >
+          Refunds
+        </button>
       </div>
       <p className="text-[12px] px-6 font-medium text-[#5C5C5C]">
-        Total Amount {activeTab == 2 ? "Withdrawn" : "Received"}
+        Total Amount {activeTab == 2 ? "Withdrawn" : activeTab == 3 ? "Refunded" : "Received"}
       </p>
       <h1 className="text-[32px] font-bold px-6">
         {dataLoading ? (
@@ -226,49 +250,47 @@ const List = () => {
           </>
         ) : activeTab == 1 ? (
           "$" + data?.totalRevenue?.toFixed(2)
-        ) : (
+        ) : activeTab == 2 ? (
           "$" + data?.totalWithdrawn?.toFixed(2)
+        ) : (
+          "$" + (data?.totalRefunded || 0)?.toFixed(2)
         )}
       </h1>
       <div className="w-full px-6 flex items-center justify-between flex-wrap my-4 gap-3">
         <div className="flex items-center justify-start gap-3 flex-wrap">
           <button
             onClick={() => setFilter({ date: null, filter: "all" })}
-            className={`text-xs font-medium ${
-              filter?.filter == "all"
+            className={`text-xs font-medium ${filter?.filter == "all"
                 ? "bg-[#FF204E]  text-white"
                 : "text-black bg-[#EDEDED]"
-            } rounded-full px-3 py-1.5`}
+              } rounded-full px-3 py-1.5`}
           >
             All
           </button>
           <button
             onClick={() => setFilter({ date: null, filter: "yearToDate" })}
-            className={`text-xs font-medium ${
-              filter?.filter == "yearToDate"
+            className={`text-xs font-medium ${filter?.filter == "yearToDate"
                 ? "bg-[#FF204E]  text-white"
                 : "text-black bg-[#EDEDED]"
-            } rounded-full px-3 py-1.5`}
+              } rounded-full px-3 py-1.5`}
           >
             Year to Date
           </button>
           <button
             onClick={() => setFilter({ date: null, filter: "thisMonth" })}
-            className={`text-xs font-medium ${
-              filter?.filter == "thisMonth"
+            className={`text-xs font-medium ${filter?.filter == "thisMonth"
                 ? "bg-[#FF204E]  text-white"
                 : "text-black bg-[#EDEDED]"
-            } rounded-full px-3 py-1.5`}
+              } rounded-full px-3 py-1.5`}
           >
             This Month
           </button>
           <button
             onClick={() => setFilter({ date: null, filter: "lastMonth" })}
-            className={`text-xs font-medium ${
-              filter?.filter == "lastMonth"
+            className={`text-xs font-medium ${filter?.filter == "lastMonth"
                 ? "bg-[#FF204E]  text-white"
                 : "text-black bg-[#EDEDED]"
-            } rounded-full px-3 py-1.5`}
+              } rounded-full px-3 py-1.5`}
           >
             Last Month
           </button>
@@ -290,7 +312,7 @@ const List = () => {
             onClick={() =>
               exportToExcel(
                 dataToExport,
-                activeTab == 2 ? "Withdrawal History" : "Transaction History",
+                activeTab == 2 ? "Withdrawal History" : activeTab == 3 ? "Refund History" : "Transaction History",
                 dataWidths
               )
             }
@@ -391,6 +413,85 @@ const List = () => {
                   })
                 )}
               </div>
+            ) : activeTab === 3 ? (
+              <div id="transaction-history" className="w-full p-6">
+                <div className="w-full grid grid-cols-6 py-4">
+                  <div>
+                    <p className="text-[11px] font-medium text-[#7C7C7C]">
+                      Date
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-medium text-[#7C7C7C]">
+                      Subscriber Name
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-medium text-[#7C7C7C]">
+                      Subscription Plan
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-medium text-[#7C7C7C]">
+                      Duration
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-medium text-[#7C7C7C]">
+                      Refunded Amount
+                    </p>
+                  </div>
+                </div>
+                {data?.transactions?.length == 0 ? (
+                  <div className="w-full bg-white rounded-b-[18px] flex items-center justify-center">
+                    <img src={NoData} alt="" className="w-96 my-10" />
+                  </div>
+                ) : (
+                  data?.transactions?.map((item, key) => {
+                    const refAmt = item?.refundedAmount !== undefined ? item?.refundedAmount : item?.price || item?.revenue || 0;
+                    return (
+                      <div
+                        key={key}
+                        className="w-full grid grid-cols-6 py-4 border-t border-b"
+                      >
+                        <div>
+                          <p className="text-[11px] font-medium">
+                            {formatDateFromISOString(item?.date || item?.createdAt)}
+                          </p>
+                        </div>
+                        <div>
+                          <Link
+                            to={`/subscriber-details/${item?._id}`}
+                            className="text-[11px] font-medium text-black hover:text-black"
+                          >
+                            {item?.user?.name}
+                          </Link>
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-medium">
+                            {item?.subscriptionPlan?.name}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-medium">
+                            {item?.subscriptionPlan?.interval == "year"
+                              ? "Yearly"
+                              : item?.subscriptionPlan?.interval == "month" &&
+                                item?.subscriptionPlan?.intervalCount == 6
+                                ? "BiAnnually"
+                                : "Monthly"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-medium text-red-500 font-semibold">
+                            ${refAmt}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
             ) : (
               <div id="transaction-history" className="w-full p-6">
                 <div className="w-full grid grid-cols-6 py-4">
@@ -455,8 +556,8 @@ const List = () => {
                               ? "Yearly"
                               : item?.subscriptionPlan?.interval == "month" &&
                                 item?.subscriptionPlan?.intervalCount == 6
-                              ? "BiAnnually"
-                              : "Monthly"}
+                                ? "BiAnnually"
+                                : "Monthly"}
                           </p>
                         </div>
                         <div>
@@ -509,6 +610,67 @@ const List = () => {
                   );
                 })}
               </>
+            ) : activeTab === 3 ? (
+              <>
+                {data?.transactions?.map((item, key) => {
+                  const refAmt = item?.refundedAmount !== undefined ? item?.refundedAmount : item?.price || item?.revenue || 0;
+                  return (
+                    <Link
+                      to={`/subscriber-details/${item?._id}`}
+                      key={key}
+                      className="w-full flex flex-col gap-3 p-4 rounded-xl bg-[#EDEDED]"
+                    >
+                      <div className="w-full flex items-start justify-between">
+                        <p className="text-xs font-medium text-[#7C7C7C]">
+                          Date
+                        </p>
+                        <p className="text-xs font-medium">
+                          {formatDateFromISOString(item?.date || item?.createdAt)}
+                        </p>
+                      </div>
+                      <div className="w-full flex items-start justify-between">
+                        <p className="text-xs font-medium text-[#7C7C7C]">
+                          Subscriber Name
+                        </p>
+                        <p className="text-xs font-medium">
+                          <span className="text-[11px] font-medium">
+                            {item?.user?.name}
+                          </span>
+                        </p>
+                      </div>
+                      <div className="w-full flex items-start justify-between">
+                        <p className="text-xs font-medium text-[#7C7C7C]">
+                          Subscription Plan
+                        </p>
+                        <p className="text-xs font-medium">
+                          {item?.subscriptionPlan?.name}
+                        </p>
+                      </div>
+                      <div className="w-full flex items-start justify-between">
+                        <p className="text-xs font-medium text-[#7C7C7C]">
+                          Duration
+                        </p>
+                        <p className="text-xs font-medium">
+                          {item?.subscriptionPlan?.interval == "year"
+                            ? "Yearly"
+                            : item?.subscriptionPlan?.interval == "month" &&
+                              item?.subscriptionPlan?.intervalCount == 6
+                              ? "BiAnnually"
+                              : "Monthly"}
+                        </p>
+                      </div>
+                      <div className="w-full flex items-start justify-between">
+                        <p className="text-xs font-medium text-[#7C7C7C]">
+                          Refunded Amount
+                        </p>
+                        <p className="text-xs font-medium text-red-500 font-semibold">
+                          ${refAmt}
+                        </p>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </>
             ) : (
               <>
                 {data?.transactions?.map((item, key) => {
@@ -556,8 +718,8 @@ const List = () => {
                             ? "Yearly"
                             : item?.subscriptionPlan?.interval == "month" &&
                               item?.subscriptionPlan?.intervalCount == 6
-                            ? "BiAnnually"
-                            : "Monthly"}
+                              ? "BiAnnually"
+                              : "Monthly"}
                         </p>
                       </div>
                       <div className="w-full flex items-start justify-between">

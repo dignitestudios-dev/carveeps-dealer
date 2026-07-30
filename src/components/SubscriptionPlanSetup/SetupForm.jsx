@@ -238,7 +238,7 @@ const SetupForm = ({ team }) => {
         </div>
       ) : (
         <>
-          <div className="flex items-center gap-2 lg:px-6 px-2 w-full my-1">
+          {/* <div className="flex items-center gap-2 lg:px-6 px-2 w-full my-1">
             <input
               type="checkbox"
               id="isOneTime"
@@ -254,12 +254,12 @@ const SetupForm = ({ team }) => {
             <label htmlFor="isOneTime" className="text-[13px] font-medium text-gray-800 cursor-pointer">
               One-Time Claim Only?
             </label>
-          </div>
-          <p className="text-xs font-medium text-[#5C5C5C] lg:px-6 px-2 -mt-2">
+          </div> */}
+          {/* <p className="text-xs font-medium text-[#5C5C5C] lg:px-6 px-2 -mt-2">
             If enabled, a customer can only subscribe to this free plan once in their lifetime.
-          </p>
+          </p> */}
 
-          <div className="lg:mx-6 mx-2 p-4 bg-amber-50 border-l-4 border-amber-500 rounded-r-md w-[calc(100%-2rem)] lg:w-[calc(100%-3rem)]">
+          {/* <div className="lg:mx-6 mx-2 p-4 bg-amber-50 border-l-4 border-amber-500 rounded-r-md w-[calc(100%-2rem)] lg:w-[calc(100%-3rem)]">
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg className="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -272,7 +272,7 @@ const SetupForm = ({ team }) => {
                 </p>
               </div>
             </div>
-          </div>
+          </div> */}
         </>
       )}
       <div className="flex flex-col items-start gap-1 lg:px-6 px-2">

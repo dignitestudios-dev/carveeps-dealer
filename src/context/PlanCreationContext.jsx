@@ -100,7 +100,7 @@ const PlanCreationContextProvider = ({ children }) => {
                   : duration == "month" && 1,
               salesPersonId: salesPerson,
               planType: planType,
-              isOneTime: planType === "free" ? isOneTime : false,
+              isOneTime: planType === "free" ? true : false,
             },
             { headers }
           )
