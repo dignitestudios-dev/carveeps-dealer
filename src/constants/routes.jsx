@@ -41,6 +41,8 @@ import AccessKeyUpdateKey from "../pages/AccessKeyUpdateKey";
 import ChangePassUpdatePass from "../pages/ChangePassUpdatePass";
 import SendNotifications from "../pages/SendNotifications";
 import AuditLogs from "../pages/AuditLogs";
+import PublicPrivacyPolicy from "../pages/PublicPrivacyPolicy";
+import PublicTermsAndConditions from "../pages/PublicTermsAndConditions";
 
 export const routes = [
   {
@@ -226,10 +228,21 @@ export const routes = [
     url: "/settings/privacy-policy",
     page: <Layout pages={<SettingsLayout page={<PrivacyPolicy />} />} />,
   },
+  // Public Legal Routes (no sidebar / full public access)
   {
-    title: "Privacy Policy Page",
+    title: "Privacy Policy",
     url: "/privacy-policy",
-    page: <Layout pages={<SettingsLayout page={<PrivacyPolicy />} />} />,
+    page: <PublicPrivacyPolicy />,
+  },
+  {
+    title: "Terms & Conditions",
+    url: "/terms-and-conditions",
+    page: <PublicTermsAndConditions />,
+  },
+  {
+    title: "Terms & Services",
+    url: "/terms-and-services",
+    page: <PublicTermsAndConditions />,
   },
   // settings end
   {
