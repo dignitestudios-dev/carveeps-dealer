@@ -226,6 +226,11 @@ export const routes = [
     url: "/settings/privacy-policy",
     page: <Layout pages={<SettingsLayout page={<PrivacyPolicy />} />} />,
   },
+  {
+    title: "Privacy Policy Page",
+    url: "/privacy-policy",
+    page: <Layout pages={<SettingsLayout page={<PrivacyPolicy />} />} />,
+  },
   // settings end
   {
     title: "Profile Page",
